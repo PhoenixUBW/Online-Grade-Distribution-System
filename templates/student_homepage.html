@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Student - Homepage</title>
+{% endblock %}
+
+{% block body %}
+
+<div>
+    <h1>Welcome {{ student.ID }}</h1>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Grade</th>
+        </tr>
+        <tr>
+            <td>{{ student.ID }}</td>
+            <td>{{ student.grade }}</td>
+        </tr>
+    </table>
+</div>
+<p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
+
+{% endblock %}

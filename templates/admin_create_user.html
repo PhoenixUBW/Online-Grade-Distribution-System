@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Admin - Creating User</title>
+{% endblock %}
+
+{% block body %}
+
+<div>
+    <h1>Creating user</h1>
+    <p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+    <p>When creating a teacher account leave grade field blank</p>
+    <form actions="{{ url_for("create_user") }}" method="POST">
+        <input type="text" name="ID" placeholder="ID" id="ID" />
+        <input type="text" name="name" placeholder="name" id="name">
+        <input type="password" name="passphrase" placeholder="passphrase" id="passphrase">
+        <input type="text" name="account_type" placeholder="account_type" id="account_type">
+        <input type="text" name="class_code" placeholder="class_code" id="class_code">
+        <input type="text" name="grade" placeholder="grade" id="grade">
+        <input type="submit" value="Create user" />
+    </form>
+</div>
+<p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
+<p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
+
+{% endblock %}

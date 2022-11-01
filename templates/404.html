@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>ERROR: 404 - NOT FOUND</title>
+{% endblock %}
+
+{% block body %}
+
+<h1>ERROR: 404 - The webpage you attempted to access could not be found </h1>
+<p>Click <a href="{{ url_for("homepage") }}">here</a> to back to the homepage</p>
+
+{% endblock %}
