@@ -1,54 +1,57 @@
-from flask import *
+from flask import Flask, session, flash, render_template, request, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
 import os.path
 import sqlite3
+from datetime import date
+from users_creation import create_db
 
-#TODO - try and exept, securely kept keys, css/make it look good, confirm passphrases, requires admin password to make changes, date grade was updated, teacher's comments, store grades seperate to user.db, encrypted class codes and account types, locks you out for time after failed attemps
+#Should implement match case instead of repetitive ifs
+#need to add css
 
 app = Flask(__name__)
-app.secret_key = "secret" #make key safe
+app.secret_key = "secret" #store keys and hardcoded passphrases privately
 
-admin_passphrase = "admin" #make passphrase safe
+admin_passphrase = "admin"
 
 db = "users.db"
 
-key = b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=' #make key safe
+key = b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=' 
 crypter = Fernet(key)
 
-VALID_GRADES = ["","A","B","C","D","E","F"]
+VALID_GRADES = ["","A*","A","B","C","D","E","F"]
 SYMBOLS = ["`","!",'"',"'","$","%","^","&","*","(",")","-","_","+","=","[","]","{","}","|",";",":","@","~","#",",","<",">",".","?","/"]
 NUMBERS = ["0","1","2","3","4","5","6","7","8","9"]
 ALPHABET = [" ","a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
            "z","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
 if os.path.exists(db) == False:
-    import users_creation
+    create_db(crypter) 
 
 def valid_ID(data):
-    message = ""
+    error = None
     if data == "":
-        message += "No ID inputted"
-        return False, message
+        error = "No ID inputted"
+        return False, error
     for char in data:
         if char not in NUMBERS:
-            message += "IDs must only contain numbers "
-            return False, message
-    return True, message
+            error = "IDs must only contain numbers"
+            return False, error
+    return True, error
 
 def valid_name(data):
-    message =  ""
+    error =  None
     for char in data:
         if char not in ALPHABET:
-            message += "Names must only contain letters "
-            return False, message
+            error = "Names must only contain letters"
+            return False, error
     if len(data) < 2:
-        message += "Names must be greater than 1 character "
-        return False, message
-    return True, message
+        error = "Names must be greater than 1 character"
+        return False, error
+    return True, error
 
 def valid_passphrase(data):
-    message = ""
+    error = None
     alpha = False
     num = False
     sym = False
@@ -63,42 +66,42 @@ def valid_passphrase(data):
     if len(data) > 11:
         length = True
     else:
-        message += "Passphrase must be greater than 11 characters "
+        error = "Passphrase must be greater than 11 characters"
     if alpha == False:
-        message += "Passphrase has no alphabetic letters "
+        error = "Passphrase has no alphabetic letters"
     if num == False:
-        message += "Passphrase has no numbers "
+        error = "Passphrase has no numbers"
     if sym == False:
-        message += "Passphrase has no symbols "
+        error = "Passphrase has no symbols"
     if alpha == True and num == True and sym == True and length == True:
-        return True, message
+        return True, error
     else:
-        return False, message
+        return False, error
 
 def valid_account_type(data):
-    message = ""
+    error = None
     if data != "student" and data != "teacher":
-        message += "Account type must = 'student' or 'teacher' "
-        return False, message
-    return True, message
+        error = "Account type must = 'student' or 'teacher'"
+        return False, error
+    return True, error
 
 def valid_class_code(data):
-    message = ""
+    error = None
     if data == "":
-        message = "No class code inputted "
-        return False, message
+        error = "No class code inputted "
+        return False, error
     for char in data:
         if char not in ALPHABET and char not in NUMBERS:
-            message += "Class code must only contain alphabetic and numeric characters "
-            return False, message
-    return True, message
+            error = "Class code must only contain alphabetic and numeric characters"
+            return False, error
+    return True, error
 
 def valid_grade(data):
-    message = ""
+    error = None
     if data not in VALID_GRADES:
-        message += "Grade must be in our set of valid grades "
-        return False, message
-    return True, message
+        error = "Grade must be in our set of valid grades"
+        return False, error
+    return True, error
 
 def list_ID():
     with sqlite3.connect(db) as con: 
@@ -134,6 +137,7 @@ class User():
         self.account_type = info[3]
         self.class_code = info[4]
         self.grade = crypter.decrypt(info[5]).decode("UTF-8")
+        self.date_grade = crypter.decrypt(info[6]).decode("UTF-8")
 
     def update_name(self,newname):
         self.name = newname
@@ -155,9 +159,10 @@ class User():
 
     def update_grade(self,newgrade):
         self.grade = newgrade
+        self.date_grade = date.today()
         with sqlite3.connect(db) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET grade=? WHERE ID=?",(crypter.encrypt(bytes(self.grade, "utf-8")), self.ID))
+            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.grade, "utf-8")), crypter.encrypt(bytes(str(self.date_grade), "utf-8")), self.ID)) #ERROR IS HERE
 
     def delete(self):
         with sqlite3.connect(db) as con:
@@ -170,12 +175,12 @@ def not_found(error_number):
 
 @app.route("/")
 def homepage():
-    error = ""
+    error = None
     return render_template("homepage.html", error=error)
 
 @app.route("/login", methods=["GET","POST"])
 def login():
-    error = ""
+    error = None
     if request.method == "POST":
         IDs = list_ID()
         if request.form["ID"] == "admin":
@@ -184,8 +189,8 @@ def login():
                 return redirect(url_for("admin_homepage"))
         if valid_ID(request.form["ID"])[0] == True:
             if request.form["ID"] in IDs:
-                if valid_passphrase(request.form["passphrase"])[0] == True: 
-                    user = User(request.form["ID"]) 
+                if valid_passphrase(request.form["passphrase"])[0] == True:
+                    user = User(request.form["ID"])
                     if check_password_hash(user.hashed_passphrase,request.form["passphrase"]) == True:
                         session["ID"] = user.ID
                         flash("You have succesfully been logged in")                
@@ -194,18 +199,18 @@ def login():
                         elif user.account_type == "teacher":
                             return redirect(f"/teacher/{user.ID}")
                     else:
-                        error += "Incorrect passphrase "
+                        error = "Incorrect passphrase"
                 else:
-                    error += "Invalid passphrase "
+                    error = "Invalid passphrase"
             else:
-                error += "There is no user with that ID "
+                error = "There is no user with that ID"
         else:
-            error += valid_ID(request.form["ID"])[1]
+            error = valid_ID(request.form["ID"])[1]
     return render_template("login.html", error=error)
 
 @app.route("/teacher/<teacher_ID>")
 def teacher_homepage(teacher_ID):
-    error = ""
+    error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
         with sqlite3.connect(db) as con:
@@ -221,26 +226,29 @@ def teacher_homepage(teacher_ID):
 
 @app.route("/teacher/<teacher_ID>/update_grade/<student_ID>", methods=["GET","POST"])
 def teacher_update_grade(teacher_ID,student_ID):
-    error = ""
+    error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
         student = User(student_ID)
         if student.class_code == teacher.class_code:
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
-                    student.update_grade(request.form["grade"])
-                    flash("Grade successfully updated")
+                    if check_password_hash(teacher.hashed_passphrase, request.form["passphrase"]) == True:
+                        student.update_grade(request.form["grade"])
+                        flash("Grade successfully updated")
+                    else:
+                        error = "Incorrect password "
                 else:
-                    error += valid_grade(request.form["grade"])[1]
+                    error = valid_grade(request.form["grade"])[1]
         else:
-            error += "This student is not in your class "
+            error = "This student is not in your class "
     else:
         return redirect(url_for("login"))
     return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error)
 
 @app.route("/student/<student_ID>")
 def student_homepage(student_ID):
-    error = ""
+    error = None
     if user_required(student_ID) == True:
         student = User(student_ID)
     else:
@@ -249,7 +257,7 @@ def student_homepage(student_ID):
 
 @app.route("/admin")
 def admin_homepage():
-    error = ""
+    error = None
     if user_required("admin") == True:
         with sqlite3.connect(db) as con:
             c = con.cursor()
@@ -264,37 +272,45 @@ def admin_homepage():
 
 @app.route("/admin/update_name/<user_ID>", methods=["GET","POST"])
 def update_name(user_ID):
-    error = ""
+    error = None
     if user_required("admin") == True:
         user = User(user_ID)
         if request.method == "POST":
             if valid_name(request.form["name"])[0] == True:
-                user.update_name(request.form["name"])
-                flash("Name succesfully updated")
+                if request.form["name"] == request.form["confirm_name"]:
+                    if request.form["admin_passphrase"] == admin_passphrase:
+                        user.update_name(request.form["name"])
+                        flash("Name succesfully updated")
+                    else:
+                        error = "Incorrect passphrase "
+                else:
+                    error = "Please ensure both fields contain the same information "
             else:
-                error += valid_name(request.form["name"])[1]
+                error = valid_name(request.form["name"])[1]
     else:
         return redirect(url_for("admin"))
-    value = user.name
-    attribute = "name"
-    return render_template("admin_edit_attribute.html", user=user, value=value, attribute=attribute, type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.name, attribute="name", type = "text", error=error)
 
 @app.route("/admin/update_passphrase/<user_ID>", methods=["GET","POST"])
 def update_passphrase(user_ID): 
-    error = ""
+    error = None
     if user_required("admin") == True:
         user = User(user_ID)
         if request.method == "POST":
             if valid_passphrase(request.form["passphrase"])[0] == True:
-                user.update_passphrase(request.form["passphrase"])
-                flash("passphrase succesfully updated")
+                if request.form["passphrase"] == request.form["confirm_passphrase"]:
+                    if request.form["admin_passphrase"] == admin_passphrase:
+                        user.update_passphrase(request.form["passphrase"])
+                        flash("Passphrase succesfully updated")
+                    else:
+                        error = "Incorrect passphrase "
+                else:
+                    error = "Please ensure both fields contain the same information "
             else:
-                error += valid_passphrase(request.form["passphrase"])[1]
+                error = valid_passphrase(request.form["passphrase"])[1]
     else:
         return redirect(url_for("login"))
-    value = user.passphrase
-    attribute = "passphrase"
-    return render_template("admin_edit_attribute.html", user=user, value=value, attribute=attribute, type = "password",error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.passphrase, attribute="passphrase", type = "password",error=error)
 
 @app.route("/admin/update_class_code/<user_ID>", methods=["GET","POST"])
 def update_class_code(user_ID):
@@ -303,15 +319,19 @@ def update_class_code(user_ID):
         user = User(user_ID)
         if request.method == "POST":
             if valid_class_code(request.form["class_code"])[0] == True:
-                user.update_class_code(request.form["class_code"])
-                flash("class code succesfully updated")
+                if request.form["class_code"] == request.form["confirm_class_code"]:
+                    if request.form["admin_passphrase"] == admin_passphrase:
+                        user.update_class_code(request.form["class_code"])
+                        flash("Class code succesfully updated")
+                    else:
+                        error = "Incorrect passphrase "
+                else:
+                    error = "Please ensure both fields contain the same information "
             else:
-                error += valid_class_code(request.form["class_code"])[1]
+                error = valid_class_code(request.form["class_code"])[1]
     else:
         return redirect(url_for("login"))
-    value = user.class_code
-    attribute = "class_code"
-    return render_template("admin_edit_attribute.html", user=user, value=value, attribute=attribute, type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.class_code, attribute="class_code", type = "text", error=error)
 
 @app.route("/admin/create_user", methods=["GET","POST"])
 def create_user():
@@ -322,44 +342,52 @@ def create_user():
             IDs = list_ID()
             if request.form["ID"] in IDs:
                 valid_user = False
-                error += "There is already an existing user with this ID " #test
+                error = "There is already an existing user with this ID " #test
             if valid_ID(request.form["ID"])[0] == False:
                 valid_user = False
-                error += valid_ID(request.form["ID"])[1]
+                error = valid_ID(request.form["ID"])[1]
             if valid_name(request.form["name"])[0] == False:
                 valid_user = False
-                error += valid_name(request.form["name"])[1]
+                error + valid_name(request.form["name"])[1]
             if valid_passphrase(request.form["passphrase"])[0] == False:
                 valid_user = False
-                error += valid_passphrase(request.form["passphrase"])[1]
+                error = valid_passphrase(request.form["passphrase"])[1]
             if valid_account_type(request.form["account_type"])[0] == False:
                 valid_user = False
-                error += valid_account_type(request.form["account_type"])[1]
+                error = valid_account_type(request.form["account_type"])[1]
             if valid_class_code(request.form["class_code"])[0] == False:
                 valid_user = False
-                error += valid_class_code(request.form["class_code"])[1]
+                error = valid_class_code(request.form["class_code"])[1]
             if valid_grade(request.form["grade"])[0] == False:
                 valid_user = False
-                error += valid_grade(request.form["grade"])[1]
+                error = valid_grade(request.form["grade"])[1]
             if valid_user == True:
-                with sqlite3.connect(db) as con:
-                    c = con.cursor()
-                    c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?, ?)",(request.form["ID"],crypter.encrypt(bytes(request.form["name"], "utf-8")), generate_password_hash(request.form["passphrase"]),request.form["account_type"],request.form["class_code"],crypter.encrypt(bytes(request.form["grade"], "utf-8"))))
-                flash("User successfully added")
+                if request.form["admin_passphrase"] == admin_passphrase:
+                    with sqlite3.connect(db) as con:
+                        c = con.cursor()
+                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?, ?)",(request.form["ID"],crypter.encrypt(bytes(request.form["name"], "utf-8")), generate_password_hash(request.form["passphrase"]),request.form["account_type"],request.form["class_code"],crypter.encrypt(bytes(request.form["grade"], "utf-8"))))
+                    flash("User successfully added")
+                else:
+                    error = "Incorrect passphrase "
     else:
         return redirect(url_for("login"))
     return render_template("admin_create_user.html", error=error)
 
 @app.route("/admin/delete_user/<user_ID>", methods=["GET","POST"])
 def delete_user(user_ID):
+    error = None
     if user_required("admin") == True:
         user = User(user_ID)
-        user.delete()
-        flash("User successfully deleted")
+        if request.method == "POST":
+            if request.form["passphrase"] == admin_passphrase:
+                user.delete()
+                flash("User successfully deleted")
+            else:
+                error = "Incorrect passphrase"
     else:
         return redirect(url_for("login"))
 
-    return redirect(url_for("admin_homepage"))
+    return render_template("admin_delete_user.html", error=error)
 
 @app.route("/logout")
 def logout():
@@ -383,4 +411,4 @@ def input_requirements():
     return render_template("input_requirements.html", grades=VALID_GRADES, letters=ALPHABET, numbers=NUMBERS, symbols=SYMBOLS)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True) # turn off for production
