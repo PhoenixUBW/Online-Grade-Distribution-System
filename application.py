@@ -6,16 +6,16 @@ import sqlite3
 from datetime import date
 from users_creation import create_db
 
-#need to add css
+#TODO - securely kept keys, teacher's comments, store grades seperate to user.db?, css/make it look good, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
-app.secret_key = "secret" #store keys and hardcoded passphrases privately
+app.secret_key = "secret" #make key safe
 
-admin_passphrase = "admin"
+admin_passphrase = "admin" #make passphrase safe
 
 db = "users.db"
 
-key = b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=' 
+key = b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=' #change and make key safe
 crypter = Fernet(key)
 
 VALID_GRADES = ["","A*","A","B","C","D","E","F"]
@@ -161,7 +161,7 @@ class User():
         self.date_grade = date.today()
         with sqlite3.connect(db) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.grade, "utf-8")), crypter.encrypt(bytes(str(self.date_grade), "utf-8")), self.ID)) #ERROR IS HERE
+            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.grade, "utf-8")), crypter.encrypt(bytes(str(self.date_grade), "utf-8")), self.ID))
 
     def delete(self):
         with sqlite3.connect(db) as con:
@@ -364,7 +364,12 @@ def create_user():
                 if request.form["admin_passphrase"] == admin_passphrase:
                     with sqlite3.connect(db) as con:
                         c = con.cursor()
-                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?, ?)",(request.form["ID"],crypter.encrypt(bytes(request.form["name"], "utf-8")), generate_password_hash(request.form["passphrase"]),request.form["account_type"],request.form["class_code"],crypter.encrypt(bytes(request.form["grade"], "utf-8"))))
+                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?, ?)",
+                                  (request.form["ID"],
+                                  crypter.encrypt(bytes(request.form["name"], "utf-8")),
+                                  generate_password_hash(request.form["passphrase"]),
+                                  request.form["account_type"],request.form["class_code"],
+                                  crypter.encrypt(bytes(request.form["grade"], "utf-8"))))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "
@@ -385,7 +390,6 @@ def delete_user(user_ID):
                 error = "Incorrect passphrase"
     else:
         return redirect(url_for("login"))
-
     return render_template("admin_delete_user.html", error=error)
 
 @app.route("/logout")
