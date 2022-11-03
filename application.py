@@ -6,7 +6,6 @@ import sqlite3
 from datetime import date
 from users_creation import create_db
 
-#Should implement match case instead of repetitive ifs
 #need to add css
 
 app = Flask(__name__)
