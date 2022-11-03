@@ -6,7 +6,7 @@ import sqlite3
 from datetime import date
 from users_creation import create_db
 
-#TODO - securely kept keys, teacher's comments, store grades seperate to user.db?, css/make it look good, encrypted class codes and account types?, locks you out for time after failed attemps?
+#TO-DO - securely kept keys, teacher's comments, store grades seperate to user.db?, css/make it look good, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
 app.secret_key = "secret" #make key safe
