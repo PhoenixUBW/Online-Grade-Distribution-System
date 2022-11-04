@@ -6,14 +6,12 @@
 
 {% block body %}
 
-<div class="container">
-    <h1>Please Login</h1>
-    <form actions="{{ url_for("login") }}" method="post">
-        <input type="text" placeholder="ID" name="ID" id="ID">
-        <input type="password" placeholder="Passphrase" name="passphrase" id="passphrase">
-        <input type="submit" value="Login" />
-    </form>
-</div>
+<h1>Please Login</h1>
+<form actions="{{ url_for("login") }}" method="post">
+    <input type="text" placeholder="ID" name="ID" id="ID">
+    <input type="password" placeholder="Passphrase" name="passphrase" id="passphrase">
+    <input class="btn btn-defualt" type="submit" value="Login" />
+</form>
 <br />
 <p>Click <a href="{{ url_for("homepage") }}">here</a> to go back to homepage</p>
 <p>Click <a href="/current_user/login">here</a> to check whether a user is logged in</p>

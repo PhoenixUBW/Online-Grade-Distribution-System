@@ -6,28 +6,26 @@
 
 {% block body %}
 
-<div>
-    <h1>Updating Grade</h1>
-    <p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+<h1>Updating Grade</h1>
+<p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
 
-    <table>
-        <tr>
-            <th>Student</th>
-            <th>Grade</th>
-            <th>Date Updated</th>
-        </tr>
-        <tr>
-            <td>{{ student.name }}</td>
-            <td>{{ student.grade }}</td>
-            <td>{{ student.date_grade }}</td>
-        </tr>
-    </table>
-    <form actions="/teacher/{{ teacher.ID }}/update_grade/{{ student }}" method="POST">
-        <input type="text" name="grade" placeholder="grade" id="grade">
-        <input type="password" name="passphrase" placeholder="passphrase" id="passphrase" />
-        <input type="submit" value="Update grade">
-    </form>
-</div>
+<table>
+    <tr>
+        <th>Student</th>
+        <th>Grade</th>
+        <th>Date Updated</th>
+    </tr>
+    <tr>
+        <td>{{ student.name }}</td>
+        <td>{{ student.grade }}</td>
+        <td>{{ student.date_grade }}</td>
+    </tr>
+</table>
+<form actions="/teacher/{{ teacher.ID }}/update_grade/{{ student }}" method="POST">
+    <input type="text" name="grade" placeholder="grade" id="grade">
+    <input type="password" name="passphrase" placeholder="passphrase" id="passphrase" />
+    <input type="submit" value="Update grade">
+</form>
 <p>Click <a href="/teacher/{{ teacher.ID }}">here</a> to go back</p>
 <p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
 

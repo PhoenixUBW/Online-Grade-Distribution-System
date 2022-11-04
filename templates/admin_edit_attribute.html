@@ -6,20 +6,18 @@
 
 {% block body %}
 
-<div>
-    <h1>Updating: {{ attribute }}</h1>
-    <h3>ID: {{ user.ID }}</h3>
-    <h3>Name: {{ user.name }}</h3>
-    <h3>Account Type: {{ user.account_type }}</h3>
-    <h3>Class Code: {{ user.class_code }}</h3>
-    <p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
-    <form actions="/admin/update_{{ attribute }}/{{ user.ID }}" method="POST">
-        <input type= {{ type }} name="{{ attribute }}" placeholder="{{ attribute }}" id="{{ attribute }}">
-        <input type= {{ type }} name="confirm_{{ attribute }}" placeholder="confirm {{ attribute }}" id="confirm_{{ attribute }}" />
-        <input type="password" name="admin_passphrase" placeholder="admin passphrase" id="admin_passphrase">
-        <input type="submit" value="Update {{ attribute }}">
-    </form>
-</div>
+<h1>Updating: {{ attribute }}</h1>
+<h3>ID: {{ user.ID }}</h3>
+<h3>Name: {{ user.name }}</h3>
+<h3>Account Type: {{ user.account_type }}</h3>
+<h3>Class Code: {{ user.class_code }}</h3>
+<p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+<form actions="/admin/update_{{ attribute }}/{{ user.ID }}" method="POST">
+    <input type= {{ type }} name="{{ attribute }}" placeholder="{{ attribute }}" id="{{ attribute }}">
+    <input type= {{ type }} name="confirm_{{ attribute }}" placeholder="confirm {{ attribute }}" id="confirm_{{ attribute }}" />
+    <input type="password" name="admin_passphrase" placeholder="admin passphrase" id="admin_passphrase">
+    <input type="submit" value="Update {{ attribute }}">
+</form>
 <p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
 <p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
 

@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block head %}
+	<meta name="viewport" content="width=device-width, inital-scale=1" />
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-	{% endblock %}
+	{% block head %}{% endblock %}
 </head>
-<body>
-	{% if error %}
-	    <p class="error"><strong>Error:</strong> {{ error }}</p>
-	{% endif %}
-	{% block body %}{% endblock %}
-	<ul class=flashes>
-		{% for message in get_flashed_messages() %}
-		<li>{{ message }}</li>
-		{% endfor %}
-	</ul>
-</body>
+	<body>
+		<div class="container">
+			{% if error %}
+			<p class="error"><strong>Error:</strong> {{ error }}</p>
+			{% endif %}
+			{% block body %}{% endblock %}
+			<ul class=flashes>
+				{% for message in get_flashed_messages() %}
+				<li>{{ message }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</body>
 </html>
