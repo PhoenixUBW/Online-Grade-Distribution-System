@@ -343,7 +343,7 @@ def create_user():
             IDs = list_ID()
             if request.form["ID"] in IDs:
                 valid_user = False
-                error = "There is already an existing user with this ID " #test
+                error = "There is already an existing user with this ID "
             if valid_ID(request.form["ID"])[0] == False:
                 valid_user = False
                 error = valid_ID(request.form["ID"])[1]
@@ -359,19 +359,15 @@ def create_user():
             if valid_class_code(request.form["class_code"])[0] == False:
                 valid_user = False
                 error = valid_class_code(request.form["class_code"])[1]
-            if valid_grade(request.form["grade"])[0] == False:
-                valid_user = False
-                error = valid_grade(request.form["grade"])[1]
             if valid_user == True:
                 if request.form["admin_passphrase"] == admin_passphrase:
                     with sqlite3.connect(db) as con:
                         c = con.cursor()
-                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?, ?)",
+                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, 'NONE', 'NONE')",
                                   (request.form["ID"],
                                   crypter.encrypt(bytes(request.form["name"], "utf-8")),
                                   generate_password_hash(request.form["passphrase"]),
-                                  request.form["account_type"],request.form["class_code"],
-                                  crypter.encrypt(bytes(request.form["grade"], "utf-8"))))
+                                  request.form["account_type"],request.form["class_code"],))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "
