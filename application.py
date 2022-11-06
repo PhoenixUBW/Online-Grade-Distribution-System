@@ -8,7 +8,7 @@ from users_creation import create_db
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
 
-#TO-DO - securely kept keys, config file (inheritance), teacher's comments, store grades seperate to user.db?, css/make it look good, encrypted class codes and account types?, locks you out for time after failed attemps?
+#TO-DO - teacher's comments, securely kept keys, css/make it look good, config file (inheritance), store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
 app.secret_key = "secret" #make key safe
