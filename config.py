@@ -1,13 +1,17 @@
-#class defualt_config(object):
-#    DEBUG = False
-#    SECRET_KEY = "secret"
-#    db = "users.db"
-#    ADMIN_PASSPHRASE = "admin"
+class DefualtConfig(object):
+    def __init__(self):
+        self.DEBUG = False
+        self.SECRET_KEY = "secret"
+        self.DB = "users.db"
+        self.ADMIN_PASSPHRASE = "admin"
+        self.EN_KEY = b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54='
 
-#class dev_config(defualt_config):
-#    DEBUG = True
+class DevConfig(DefualtConfig):
+    def __init__(self):
+        super().__init__()
+        self.DEBUG = True
 
-#class production_config(defualt_config):
-#    DEBUG = False
-
-CONFIG = {"DEBUG":True,"SECRET_KEY":"secret","DB":"users.db","ADMIN_PASSPHRASE":"admin","EN_KEY":b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54='}
+class ProductionConfig(DefualtConfig):
+    def __init__(self):
+        super().__init__()
+        self.DEBUG = False
