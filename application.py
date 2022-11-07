@@ -9,7 +9,8 @@ from config import CONFIG
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
 
-#TO-DO - teacher's comments, securely kept keys, css/make it look good, config file (inheritance), store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
+#TO-DO - check if I can make better if else statements (reduce), config file (inheritance), css/make it look good, securely kept keys
+#teacher's comments?, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
 
