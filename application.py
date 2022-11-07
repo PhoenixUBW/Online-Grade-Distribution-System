@@ -128,7 +128,7 @@ def user_required(user_name):
         return False
 
 class User():
-    def __init__(config,ID):
+    def __init__(self,ID):
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
             c.execute("SELECT * FROM users WHERE ID=?",(ID,)) #gets all info for that user
