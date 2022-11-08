@@ -8,7 +8,7 @@ from users_creation import create_db
 from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
-#private and protected classes, getter and setters - change how my objects work
+#private and protected classes, getter and setters - change how my objects work - , class inheritance, User - student/teacher
 
 #why in vscode does the running crash everytime I make a change
 
@@ -134,39 +134,68 @@ class User():
             c = con.cursor()
             c.execute("SELECT * FROM users WHERE ID=?",(ID,)) #gets all info for that user
             info = c.fetchall()[0]
-        self.ID = info[0]
-        self.name = crypter.decrypt(info[1]).decode("UTF-8")
-        self.hashed_passphrase = info[2]
-        self.passphrase = "unavailable"
-        self.account_type = info[3]
-        self.class_code = info[4]
-        self.grade = crypter.decrypt(info[5]).decode("UTF-8")
-        self.date_grade = crypter.decrypt(info[6]).decode("UTF-8")
+        self.__ID = info[0]
+        self.__name = crypter.decrypt(info[1]).decode("UTF-8")
+        self.__hashed_passphrase = info[2]
+        self.__passphrase = "unavailable"
+        self.__account_type = info[3]
+        self.__class_code = info[4]
+        self.__grade = crypter.decrypt(info[5]).decode("UTF-8")
+        self.__date_grade = crypter.decrypt(info[6]).decode("UTF-8")
 
-    def set_name(self,name):#update_name
+    def get_ID(self):
+        return self.__ID #object_name.attribute
+    
+    def get_name(self):
+        return self.__name
+
+    def get_hashed_passphrase(self):
+        return self.__hashed_passphrase
+    
+    def get_passphrase(self):
+        return self.__passphrase
+
+    def get_account_type(self):
+        return self.__account_type
+
+    def get_class_code(self):
+        return self.__class_code
+
+    def get_grade(self):
+        return self.__grade
+
+    def get_date_grade(self):
+        return self.__date_grade
+
+    def update_name(self,newname): #updaters are the setter methods (only difference is the values have initialised values and then can be set to be other things/or updated)
+        self.__name = newname
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(name, "utf-8")), self.get_ID()))
+            c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(self.__name, "utf-8")), self.ID))
 
-    def set_passphrase(self, passphrase): #update_passphrase
+    def update_passphrase(self, newpassphrase):
+        self.__hashed_passphrase = generate_password_hash(newpassphrase)
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(generate_password_hash(passphrase), self.get_ID()))
+            c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(self.__hashed_passphrase, self.ID))
 
-    def set_class_code(self, class_code): #update_class_code
+    def update_class_code(self, newclass_code):
+        self.__class_code = newclass_code
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET class_code=? WHERE ID=?",(class_code, self.get_ID()))
+            c.execute("UPDATE users SET class_code=? WHERE ID=?",(self.__class_code, self.ID))
 
-    def set_grade(self,grade): #update_grade
+    def update_grade(self,newgrade):
+        self.__grade = newgrade
+        self.__date_grade = date.today()
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(grade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.get_ID()))
+            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.__grade, "utf-8")), crypter.encrypt(bytes(str(self.__date_grade), "utf-8")), self.__ID))
 
     def delete(self):
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("DELETE FROM users WHERE ID=?",(self.get_ID(),)) #changing everything to set and get
+            c.execute("DELETE FROM users WHERE ID=?",(self.__ID,))
     
 @app.errorhandler(404)
 def not_found(error_number):
@@ -187,13 +216,13 @@ def login():
         IDs = list_ID()
         if valid_ID(request.form["ID"])[0] == True and request.form["ID"] in IDs:
             user = User(request.form["ID"])
-            if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.hashed_passphrase,request.form["passphrase"]) == True:
-                session["ID"] = user.ID
+            if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.get_hashed_passphrase(),request.form["passphrase"]) == True:
+                session["ID"] = user.get_ID()
                 flash("You have succesfully been logged in")                
-                if user.account_type == "student":
-                    return redirect(f"/student/{user.ID}")
-                elif user.account_type == "teacher":
-                    return redirect(f"/teacher/{user.ID}")
+                if user.get_account_type() == "student":
+                    return redirect(f"/student/{user.get_ID()}")
+                elif user.get_account_type() == "teacher":
+                    return redirect(f"/teacher/{user.get_ID()}")
             else:
                 error = "Invalid passphrase"
         else:
@@ -207,7 +236,7 @@ def teacher_homepage(teacher_ID):
         teacher = User(teacher_ID)
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("student",teacher.class_code))
+            c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("student",teacher.get_class_code()))
             lt_students = c.fetchall()
             students = list()
             for student in lt_students:
@@ -222,10 +251,10 @@ def teacher_update_grade(teacher_ID,student_ID):
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
         student = User(student_ID)
-        if student.class_code == teacher.class_code:
+        if student.get_class_code() == teacher.get_class_code():
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
-                    if check_password_hash(teacher.hashed_passphrase, request.form["passphrase"]) == True:
+                    if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
                         student.update_grade(request.form["grade"])
                         flash("Grade successfully updated")
                     else:
@@ -281,7 +310,7 @@ def update_name(user_ID):
                 error = valid_name(request.form["name"])[1]
     else:
         return redirect(url_for("admin"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.name, attribute="name", type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_name(), attribute="name", type = "text", error=error)
 
 @app.route("/admin/update_passphrase/<user_ID>", methods=["GET","POST"])
 def update_passphrase(user_ID): 
@@ -302,7 +331,7 @@ def update_passphrase(user_ID):
                 error = valid_passphrase(request.form["passphrase"])[1]
     else:
         return redirect(url_for("login"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.passphrase, attribute="passphrase", type = "password",error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_passphrase(), attribute="passphrase", type = "password",error=error)
 
 @app.route("/admin/update_class_code/<user_ID>", methods=["GET","POST"])
 def update_class_code(user_ID):
@@ -323,7 +352,7 @@ def update_class_code(user_ID):
                 error = valid_class_code(request.form["class_code"])[1]
     else:
         return redirect(url_for("login"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.class_code, attribute="class_code", type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_class_code(), attribute="class_code", type = "text", error=error)
 
 @app.route("/admin/create_user", methods=["GET","POST"])
 def create_user():
@@ -379,7 +408,7 @@ def delete_user(user_ID):
                 error = "Incorrect passphrase"
     else:
         return redirect(url_for("login"))
-    return render_template("admin_delete_user.html", error=error)
+    return render_template("admin_delete_user.html", error=error, user_ID=user_ID)
 
 @app.route("/logout")
 def logout():

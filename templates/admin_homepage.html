@@ -19,12 +19,12 @@
 
     {% for user in users %}
     <tr>
-        <td>{{ user.ID }}</td>
-        <td><a href="/admin/update_name/{{ user.ID }}">{{ user.name }}</a></td>
-        <td><a href="/admin/update_passphrase/{{ user.ID }}">unavailable</a></td>
-        <td>{{ user.account_type }}</td>
-        <td><a href="/admin/update_class_code/{{ user.ID }}">{{ user.class_code }}</a></td>
-        <td><a href="/admin/delete_user/{{ user.ID }}">Delete</a></td>
+        <td>{{ user.get_ID() }}</td>
+        <td><a href="/admin/update_name/{{ user.get_ID() }}">{{ user.get_name() }}</a></td>
+        <td><a href="/admin/update_passphrase/{{ user.get_ID() }}">unavailable</a></td>
+        <td>{{ user.get_account_type() }}</td>
+        <td><a href="/admin/update_class_code/{{ user.get_ID() }}">{{ user.get_class_code()}}</a></td>
+        <td><a href="/admin/delete_user/{{ user.get_ID() }}">Delete</a></td>
     </tr>
     {% endfor %}
 

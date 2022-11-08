@@ -16,17 +16,17 @@
         <th>Date Updated</th>
     </tr>
     <tr>
-        <td>{{ student.name }}</td>
-        <td>{{ student.grade }}</td>
-        <td>{{ student.date_grade }}</td>
+        <td>{{ student.get_name() }}</td>
+        <td>{{ student.get_grade() }}</td>
+        <td>{{ student.get_date_grade() }}</td>
     </tr>
 </table>
-<form actions="/teacher/{{ teacher.ID }}/update_grade/{{ student }}" method="POST">
+<form actions="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}" method="POST">
     <input type="text" name="grade" placeholder="grade" id="grade">
     <input type="password" name="passphrase" placeholder="passphrase" id="passphrase" />
     <input type="submit" value="Update grade">
 </form>
-<p>Click <a href="/teacher/{{ teacher.ID }}">here</a> to go back</p>
+<p>Click <a href="/teacher/{{ teacher.get_ID() }}">here</a> to go back</p>
 <p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
 
 {% endblock %}

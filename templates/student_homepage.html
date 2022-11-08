@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<h1>Welcome {{ student.name }}</h1>
+<h1>Welcome {{ student.get_name() }}</h1>
 
 <table>
     <tr>
@@ -15,9 +15,9 @@
         <th>Date Updated</th>
     </tr>
     <tr>
-        <td>{{ student.name }}</td>
-        <td>{{ student.grade }}</td>
-        <td>{{ student.date_grade }}</td>
+        <td>{{ student.get_name() }}</td>
+        <td>{{ student.get_grade() }}</td>
+        <td>{{ student.get_date_grade() }}</td>
     </tr>
     </table>
 <p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>

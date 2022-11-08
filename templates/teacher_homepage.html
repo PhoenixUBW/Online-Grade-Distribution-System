@@ -17,11 +17,11 @@
 	</tr>
 	{% for student in students %}
 	<tr>
-		<td>{{ student.name }}</td>
-		<td>{{ student.grade }}</td>
+		<td>{{ student.get_name() }}</td>
+		<td>{{ student.get_grade() }}</td>
 		<td>{{ student.date_grade }}</td>
-		<td><a href="/teacher/{{ teacher.ID }}/update_grade/{{ student.ID }}">Update grade</a><td>
-	<!--<td><a href="/teacher/{{ teacher.ID }}/update_comments/{{ student.ID }}">Update comments</a><td>-->
+		<td><a href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}">Update grade</a><td>
+	<!--<td><a href="/teacher/{{ teacher.get_ID() }}/update_comments/{{ student.get_ID() }}">Update comments</a><td>-->
         </tr>
 	{% endfor %}
 </table>
