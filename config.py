@@ -1,28 +1,28 @@
 class DefualtConfig():
     def __init__(self):
-        self.set_DEBUG(False)
-        self.set_SECRET_KEY("secret")
-        self.set_DB("users.db")
-        self.set_ADMIN_USERNAME("admin")
-        self.set_ADMIN_PASSPHRASE("admin")
-        self.set_EN_KEY(b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=')
+        self.__set_DEBUG(False)
+        self.__set_SECRET_KEY("secret") #make safe
+        self.__set_DB("users.db")
+        self.__set_ADMIN_USERNAME("admin") #make safe
+        self.__set_ADMIN_PASSPHRASE("admin") #make safe
+        self.__set_EN_KEY(b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=') #make safe
 
-    def set_DEBUG(self,value):
+    def __set_DEBUG(self,value):
         self.__DEBUG = value
 
-    def set_SECRET_KEY(self,value):
+    def __set_SECRET_KEY(self,value):
         self.__SECRET_KEY = value
 
-    def set_DB(self,value):
+    def __set_DB(self,value):
         self.__DB = value
 
-    def set_ADMIN_USERNAME(self,value):
+    def __set_ADMIN_USERNAME(self,value):
         self.__ADMIN_USERNAME = value
 
-    def set_ADMIN_PASSPHRASE(self,value):
+    def __set_ADMIN_PASSPHRASE(self,value):
         self.__ADMIN_PASSPHRASE = value
 
-    def set_EN_KEY(self,value):
+    def __set_EN_KEY(self,value):
         self.__EN_KEY = value
 
     def get_SECRET_KEY(self):
@@ -42,10 +42,8 @@ class DefualtConfig():
 
 class DevConfig(DefualtConfig):
     def __init__(self):
-        super().__init__()
-        set_DEBUG(True)
+        self.set_DEBUG(True)
 
 class ProductionConfig(DefualtConfig):
     def __init__(self):
-        super().__init__()
-        self.DEBUG = False
+        self.set_DEBUG(False)

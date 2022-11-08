@@ -13,13 +13,13 @@ from config import DevConfig, ProductionConfig
 #why in vscode does the running crash everytime I make a change
 
 #TO-DO - css/make it look good, securely kept keys
-#teacher's comments?, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
+#teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
 
 config = DevConfig()
 
-app.secret_key = config.get_SECRET_KEY() #make key safe
+app.secret_key = config.get_SECRET_KEY()
 
 crypter = Fernet(config.get_EN_KEY())
 
