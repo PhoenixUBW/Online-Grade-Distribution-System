@@ -19,9 +19,9 @@ app = Flask(__name__)
 
 config = DevConfig()
 
-app.secret_key = config.SECRET_KEY #make key safe
+app.secret_key = config.get_SECRET_KEY() #make key safe
 
-crypter = Fernet(config.EN_KEY)
+crypter = Fernet(config.get_EN_KEY())
 
 VALID_GRADES = ["","A*","A","B","C","D","E","F"]
 SYMBOLS = ["`","!",'"',"'","$","%","^","&","*","(",")","-","_","+","=","[","]","{","}","|",";",":","@","~","#",",","<",">",".","?","/"]
@@ -29,7 +29,7 @@ NUMBERS = ["0","1","2","3","4","5","6","7","8","9"]
 ALPHABET = [" ","a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
            "z","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
-if os.path.exists(config.DB) == False:
+if os.path.exists(config.get_DB()) == False:
     create_db(crypter) 
 
 def valid_ID(data):
@@ -108,7 +108,7 @@ def valid_grade(data):
     return True, error
 
 def list_ID():
-    with sqlite3.connect(config.DB) as con: 
+    with sqlite3.connect(config.get_DB()) as con: 
         c = con.cursor()
         c.execute("SELECT ID FROM users")
         temp = c.fetchall()
@@ -130,7 +130,7 @@ def user_required(user_name):
 
 class User():
     def __init__(self,ID):
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("SELECT * FROM users WHERE ID=?",(ID,)) #gets all info for that user
             info = c.fetchall()[0]
@@ -169,31 +169,31 @@ class User():
 
     def update_name(self,newname): #updaters are the setter methods (only difference is the values have initialised values and then can be set to be other things/or updated)
         self.__name = newname
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(self.__name, "utf-8")), self.ID))
 
     def update_passphrase(self, newpassphrase):
         self.__hashed_passphrase = generate_password_hash(newpassphrase)
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(self.__hashed_passphrase, self.ID))
 
     def update_class_code(self, newclass_code):
         self.__class_code = newclass_code
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET class_code=? WHERE ID=?",(self.__class_code, self.ID))
 
     def update_grade(self,newgrade):
         self.__grade = newgrade
         self.__date_grade = date.today()
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.__grade, "utf-8")), crypter.encrypt(bytes(str(self.__date_grade), "utf-8")), self.__ID))
 
     def delete(self):
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("DELETE FROM users WHERE ID=?",(self.__ID,))
     
@@ -210,8 +210,8 @@ def homepage():
 def login():
     error = None
     if request.method == "POST":
-        if request.form["ID"] == "admin" and request.form["passphrase"] == config.ADMIN_PASSPHRASE:
-            session["ID"] = "admin"
+        if request.form["ID"] == config.get_ADMIN_USERNAME() and request.form["passphrase"] == config.get_ADMIN_PASSPHRASE():
+            session["ID"] = config.get_ADMIN_USERNAME()
             return redirect(url_for("admin_homepage"))
         IDs = list_ID()
         if valid_ID(request.form["ID"])[0] == True and request.form["ID"] in IDs:
@@ -234,7 +234,7 @@ def teacher_homepage(teacher_ID):
     error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
-        with sqlite3.connect(config.DB) as con:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("student",teacher.get_class_code()))
             lt_students = c.fetchall()
@@ -279,8 +279,8 @@ def student_homepage(student_ID):
 @app.route("/admin")
 def admin_homepage():
     error = None
-    if user_required("admin") == True:
-        with sqlite3.connect(config.DB) as con:
+    if user_required(config.get_ADMIN_USERNAME()) == True:
+        with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
             c.execute("SELECT ID FROM users WHERE account_type='student' OR account_type='teacher'")
             lt_users = c.fetchall()
@@ -294,12 +294,12 @@ def admin_homepage():
 @app.route("/admin/update_name/<user_ID>", methods=["GET","POST"])
 def update_name(user_ID):
     error = None
-    if user_required("admin") == True:
+    if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
             if valid_name(request.form["name"])[0] == True:
                 if request.form["name"] == request.form["confirm_name"]:
-                    if request.form["admin_passphrase"] == config.ADMIN_PASSPHRASE:
+                    if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.update_name(request.form["name"])
                         flash("Name succesfully updated")
                     else:
@@ -315,12 +315,12 @@ def update_name(user_ID):
 @app.route("/admin/update_passphrase/<user_ID>", methods=["GET","POST"])
 def update_passphrase(user_ID): 
     error = None
-    if user_required("admin") == True:
+    if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
             if valid_passphrase(request.form["passphrase"])[0] == True:
                 if request.form["passphrase"] == request.form["confirm_passphrase"]:
-                    if request.form["admin_passphrase"] == config.ADMIN_PASSPHRASE:
+                    if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.update_passphrase(request.form["passphrase"])
                         flash("Passphrase succesfully updated")
                     else:
@@ -336,12 +336,12 @@ def update_passphrase(user_ID):
 @app.route("/admin/update_class_code/<user_ID>", methods=["GET","POST"])
 def update_class_code(user_ID):
     error = ""
-    if user_required("admin") == True:
+    if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
             if valid_class_code(request.form["class_code"])[0] == True:
                 if request.form["class_code"] == request.form["confirm_class_code"]:
-                    if request.form["admin_passphrase"] == config.ADMIN_PASSPHRASE:
+                    if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.update_class_code(request.form["class_code"])
                         flash("Class code succesfully updated")
                     else:
@@ -357,7 +357,7 @@ def update_class_code(user_ID):
 @app.route("/admin/create_user", methods=["GET","POST"])
 def create_user():
     error = ""
-    if user_required("admin") == True:
+    if user_required(config.get_ADMIN_USERNAME()) == True:
         valid_user = True
         if request.method == "POST":
             IDs = list_ID()
@@ -380,8 +380,8 @@ def create_user():
                 valid_user = False
                 error = valid_class_code(request.form["class_code"])[1]
             if valid_user == True:
-                if request.form["admin_passphrase"] == config.ADMIN_PASSPHRASE:
-                    with sqlite3.connect(config.DB) as con:
+                if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
+                    with sqlite3.connect(config.get_DB()) as con:
                         c = con.cursor()
                         c.execute("INSERT INTO users VALUES(?, ?, ?, ?, 'NONE', 'NONE')",
                                   (request.form["ID"],
@@ -398,10 +398,10 @@ def create_user():
 @app.route("/admin/delete_user/<user_ID>", methods=["GET","POST"])
 def delete_user(user_ID):
     error = None
-    if user_required("admin") == True:
+    if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
-            if request.form["passphrase"] == config.ADMIN_PASSPHRASE:
+            if request.form["passphrase"] == config.get_ADMIN_PASSPHRASE():
                 user.delete()
                 flash("User successfully deleted")
             else:
@@ -432,4 +432,4 @@ def input_requirements():
     return render_template("input_requirements.html", grades=VALID_GRADES, letters=ALPHABET, numbers=NUMBERS, symbols=SYMBOLS)
 
 if __name__ == "__main__":
-    app.run(debug=config.DEBUG)
+    app.run(debug=config.get_DEBUG())
