@@ -8,11 +8,12 @@ from users_creation import create_db
 from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
+#private and protected classes, getter and setters - change how my objects work
 
 #why in vscode does the running crash everytime I make a change
 
-#TO-DO - check if I can make better if else statements (reduce), config file (inheritance), css/make it look good, securely kept keys
-#teacher's comments?, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
+#TO-DO - css/make it look good, securely kept keys
+#teacher's comments?, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
 
@@ -185,30 +186,23 @@ def homepage():
 def login():
     error = None
     if request.method == "POST":
+        if request.form["ID"] == "admin" and request.form["passphrase"] == config.ADMIN_PASSPHRASE:
+            session["ID"] = "admin"
+            return redirect(url_for("admin_homepage"))
         IDs = list_ID()
-        if request.form["ID"] == "admin":
-            if request.form["passphrase"] == config.ADMIN_PASSPHRASE:
-                session["ID"] = "admin"
-                return redirect(url_for("admin_homepage"))
-        if valid_ID(request.form["ID"])[0] == True:
-            if request.form["ID"] in IDs:
-                if valid_passphrase(request.form["passphrase"])[0] == True:
-                    user = User(request.form["ID"])
-                    if check_password_hash(user.hashed_passphrase,request.form["passphrase"]) == True:
-                        session["ID"] = user.ID
-                        flash("You have succesfully been logged in")                
-                        if user.account_type == "student":
-                            return redirect(f"/student/{user.ID}")
-                        elif user.account_type == "teacher":
-                            return redirect(f"/teacher/{user.ID}")
-                    else:
-                        error = "Incorrect passphrase"
-                else:
-                    error = "Invalid passphrase"
+        if valid_ID(request.form["ID"])[0] == True and request.form["ID"] in IDs:
+            user = User(request.form["ID"])
+            if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.hashed_passphrase,request.form["passphrase"]) == True:
+                session["ID"] = user.ID
+                flash("You have succesfully been logged in")                
+                if user.account_type == "student":
+                    return redirect(f"/student/{user.ID}")
+                elif user.account_type == "teacher":
+                    return redirect(f"/teacher/{user.ID}")
             else:
-                error = "There is no user with that ID"
+                error = "Invalid passphrase"
         else:
-            error = valid_ID(request.form["ID"])[1]
+            error = "Invalid ID"
     return render_template("login.html", error=error)
 
 @app.route("/teacher/<teacher_ID>")

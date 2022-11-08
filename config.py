@@ -1,4 +1,4 @@
-class DefualtConfig(object):
+class DefualtConfig():
     def __init__(self):
         self.DEBUG = False
         self.SECRET_KEY = "secret"
