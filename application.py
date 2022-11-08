@@ -143,35 +143,30 @@ class User():
         self.grade = crypter.decrypt(info[5]).decode("UTF-8")
         self.date_grade = crypter.decrypt(info[6]).decode("UTF-8")
 
-    def update_name(self,newname):
-        self.name = newname
+    def set_name(self,name):#update_name
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(self.name, "utf-8")), self.ID))
+            c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(name, "utf-8")), self.get_ID()))
 
-    def update_passphrase(self, newpassphrase):
-        self.hashed_passphrase = generate_password_hash(newpassphrase)
+    def set_passphrase(self, passphrase): #update_passphrase
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(self.hashed_passphrase, self.ID))
+            c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(generate_password_hash(passphrase), self.get_ID()))
 
-    def update_class_code(self, newclass_code):
-        self.class_code = newclass_code
+    def set_class_code(self, class_code): #update_class_code
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET class_code=? WHERE ID=?",(self.class_code, self.ID))
+            c.execute("UPDATE users SET class_code=? WHERE ID=?",(class_code, self.get_ID()))
 
-    def update_grade(self,newgrade):
-        self.grade = newgrade
-        self.date_grade = date.today()
+    def set_grade(self,grade): #update_grade
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.grade, "utf-8")), crypter.encrypt(bytes(str(self.date_grade), "utf-8")), self.ID))
+            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(grade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.get_ID()))
 
     def delete(self):
         with sqlite3.connect(config.DB) as con:
             c = con.cursor()
-            c.execute("DELETE FROM users WHERE ID=?",(self.ID,))
+            c.execute("DELETE FROM users WHERE ID=?",(self.get_ID(),)) #changing everything to set and get
     
 @app.errorhandler(404)
 def not_found(error_number):
