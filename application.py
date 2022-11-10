@@ -8,9 +8,7 @@ from users_creation import create_db
 from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
-#private and protected classes, getter and setters - change how my objects work - , class inheritance, User - student/teacher
-
-#why in vscode does the running crash everytime I make a change
+#class inheritance, User - student/teacher
 
 #TO-DO - css/make it look good, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
