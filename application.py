@@ -5,7 +5,7 @@ import os.path
 import sqlite3
 from datetime import date
 from users_creation import create_db
-from config import DevConfig, ProductionConfig
+from config import DevConfig, ProductionConfig, DefualtConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
 #add composition and admin class from testing comp.py
