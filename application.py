@@ -8,7 +8,7 @@ from users_creation import create_db
 from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
-#class inheritance, User - student/teacher
+#add composition and admin class from testing comp.py
 
 #TO-DO - css/make it look good, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
@@ -249,7 +249,7 @@ def teacher_update_grade(teacher_ID,student_ID):
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
         student = User(student_ID)
-        if student.get_class_code() == teacher.get_class_code():
+        if teacher.get_class_code() == student.get_class_code():
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
                     if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
