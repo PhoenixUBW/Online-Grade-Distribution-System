@@ -5,10 +5,9 @@ import os.path
 import sqlite3
 from datetime import date
 from users_creation import create_db
-from config import DevConfig, ProductionConfig, DefualtConfig
+from config import DevConfig, ProductionConfig
 
-#wtforms, sqlalchemy, django, postgreSQL, bcrypt, 
-#add composition and admin class from testing comp.py
+#wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
 #TO-DO - css/make it look good, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
@@ -126,11 +125,58 @@ def user_required(user_name):
         flash("You must be logged in to view this page")
         return False
 
+class Student():
+    def __init__(self,ID):
+        with sqlite3.connect(config.get_DB()) as con:
+            c = con.cursor()
+            c.execute("SELECT grade, date_grade FROM users WHERE ID=?",(ID,))
+            info = c.fetchall()[0]
+        self.__grade = crypter.decrypt(info[0]).decode("UTF-8")
+        self.__date_grade = crypter.decrypt(info[1]).decode("UTF-8")
+
+
+    def get_grade(self):
+        return self.__grade
+
+    def get_date_grade(self):
+        return self.__date_grade
+
+class Teacher():
+    def __init__(self,target):
+        self.__target = target
+    def update_grade(self,newgrade): 
+        with sqlite3.connect(config.get_DB()) as con:
+            c = con.cursor()
+            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target))
+
+class Admin():
+    def __init__(self,target):
+        self.__target = target
+    def update_name(self,newname):
+        with sqlite3.connect(config.get_DB()) as con:
+            c = con.cursor()
+            c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(newname, "utf-8")), self.__target))
+
+    def update_passphrase(self, newpassphrase):
+        with sqlite3.connect(config.get_DB()) as con:
+            c = con.cursor()
+            c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(generate_password_hash(newpassphrase), self.__target))
+
+    def update_class_code(self, newclass_code):
+        with sqlite3.connect(config.get_DB()) as con:
+            c = con.cursor()
+            c.execute("UPDATE users SET class_code=? WHERE ID=?",(newclass_code, self.__target))
+
+    def delete(self):
+        with sqlite3.connect(config.get_DB()) as con:
+            c = con.cursor()
+            c.execute("DELETE FROM users WHERE ID=?",(self.__target,))
+
 class User():
     def __init__(self,ID):
         with sqlite3.connect(config.get_DB()) as con:
             c = con.cursor()
-            c.execute("SELECT * FROM users WHERE ID=?",(ID,)) #gets all info for that user
+            c.execute("SELECT * FROM users WHERE ID=?",(ID,))
             info = c.fetchall()[0]
         self.__ID = info[0]
         self.__name = crypter.decrypt(info[1]).decode("UTF-8")
@@ -138,11 +184,16 @@ class User():
         self.__passphrase = "unavailable"
         self.__account_type = info[3]
         self.__class_code = info[4]
-        self.__grade = crypter.decrypt(info[5]).decode("UTF-8")
-        self.__date_grade = crypter.decrypt(info[6]).decode("UTF-8")
+        if "ID" in session:
+            if self.__account_type == "student":
+                self.student = Student(ID)
+            if session["account_type"] == "teacher":
+                self.teacher = Teacher(ID)
+            if session["ID"] == config.get_ADMIN_USERNAME():
+                self.admin = Admin(ID)
 
     def get_ID(self):
-        return self.__ID #object_name.attribute
+        return self.__ID
     
     def get_name(self):
         return self.__name
@@ -158,42 +209,6 @@ class User():
 
     def get_class_code(self):
         return self.__class_code
-
-    def get_grade(self):
-        return self.__grade
-
-    def get_date_grade(self):
-        return self.__date_grade
-
-    def update_name(self,newname): #updaters are the setter methods (only difference is the values have initialised values and then can be set to be other things/or updated)
-        self.__name = newname
-        with sqlite3.connect(config.get_DB()) as con:
-            c = con.cursor()
-            c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(self.__name, "utf-8")), self.ID))
-
-    def update_passphrase(self, newpassphrase):
-        self.__hashed_passphrase = generate_password_hash(newpassphrase)
-        with sqlite3.connect(config.get_DB()) as con:
-            c = con.cursor()
-            c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(self.__hashed_passphrase, self.ID))
-
-    def update_class_code(self, newclass_code):
-        self.__class_code = newclass_code
-        with sqlite3.connect(config.get_DB()) as con:
-            c = con.cursor()
-            c.execute("UPDATE users SET class_code=? WHERE ID=?",(self.__class_code, self.ID))
-
-    def update_grade(self,newgrade):
-        self.__grade = newgrade
-        self.__date_grade = date.today()
-        with sqlite3.connect(config.get_DB()) as con:
-            c = con.cursor()
-            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(self.__grade, "utf-8")), crypter.encrypt(bytes(str(self.__date_grade), "utf-8")), self.__ID))
-
-    def delete(self):
-        with sqlite3.connect(config.get_DB()) as con:
-            c = con.cursor()
-            c.execute("DELETE FROM users WHERE ID=?",(self.__ID,))
     
 @app.errorhandler(404)
 def not_found(error_number):
@@ -216,6 +231,7 @@ def login():
             user = User(request.form["ID"])
             if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.get_hashed_passphrase(),request.form["passphrase"]) == True:
                 session["ID"] = user.get_ID()
+                session["account_type"] = user.get_account_type()
                 flash("You have succesfully been logged in")                
                 if user.get_account_type() == "student":
                     return redirect(f"/student/{user.get_ID()}")
@@ -226,6 +242,15 @@ def login():
         else:
             error = "Invalid ID"
     return render_template("login.html", error=error)
+
+@app.route("/student/<student_ID>")
+def student_homepage(student_ID):
+    error = None
+    if user_required(student_ID) == True:
+        student = User(student_ID)
+    else:
+        return redirect(url_for("login"))
+    return render_template("student_homepage.html", student=student, error=error)
 
 @app.route("/teacher/<teacher_ID>")
 def teacher_homepage(teacher_ID):
@@ -253,7 +278,7 @@ def teacher_update_grade(teacher_ID,student_ID):
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
                     if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
-                        student.update_grade(request.form["grade"])
+                        student.teacher.update_grade(request.form["grade"])
                         flash("Grade successfully updated")
                     else:
                         error = "Incorrect password "
@@ -264,15 +289,6 @@ def teacher_update_grade(teacher_ID,student_ID):
     else:
         return redirect(url_for("login"))
     return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error)
-
-@app.route("/student/<student_ID>")
-def student_homepage(student_ID):
-    error = None
-    if user_required(student_ID) == True:
-        student = User(student_ID)
-    else:
-        return redirect(url_for("login"))
-    return render_template("student_homepage.html", student=student, error=error)
 
 @app.route("/admin")
 def admin_homepage():
@@ -298,7 +314,7 @@ def update_name(user_ID):
             if valid_name(request.form["name"])[0] == True:
                 if request.form["name"] == request.form["confirm_name"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                        user.update_name(request.form["name"])
+                        user.admin.update_name(request.form["name"])
                         flash("Name succesfully updated")
                     else:
                         error = "Incorrect passphrase "
@@ -319,7 +335,7 @@ def update_passphrase(user_ID):
             if valid_passphrase(request.form["passphrase"])[0] == True:
                 if request.form["passphrase"] == request.form["confirm_passphrase"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                        user.update_passphrase(request.form["passphrase"])
+                        user.admin.update_passphrase(request.form["passphrase"])
                         flash("Passphrase succesfully updated")
                     else:
                         error = "Incorrect passphrase "
@@ -340,7 +356,7 @@ def update_class_code(user_ID):
             if valid_class_code(request.form["class_code"])[0] == True:
                 if request.form["class_code"] == request.form["confirm_class_code"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                        user.update_class_code(request.form["class_code"])
+                        user.admin.update_class_code(request.form["class_code"])
                         flash("Class code succesfully updated")
                     else:
                         error = "Incorrect passphrase "
@@ -400,8 +416,9 @@ def delete_user(user_ID):
         user = User(user_ID)
         if request.method == "POST":
             if request.form["passphrase"] == config.get_ADMIN_PASSPHRASE():
-                user.delete()
+                user.admin.delete()
                 flash("User successfully deleted")
+                return redirect(url_for("admin_homepage"))
             else:
                 error = "Incorrect passphrase"
     else:

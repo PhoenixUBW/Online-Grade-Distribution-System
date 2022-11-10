@@ -7,7 +7,7 @@
 {% block body %}
 
 
-	<h1>Teacher Homepage</h1>
+	<h1>Welcome {{ teacher.get_name() }}</h1>
 
 <table>
 	<tr>
@@ -18,8 +18,8 @@
 	{% for student in students %}
 	<tr>
 		<td>{{ student.get_name() }}</td>
-		<td>{{ student.get_grade() }}</td>
-		<td>{{ student.date_grade }}</td>
+		<td>{{ student.student.get_grade() }}</td>
+		<td>{{ student.student.get_date_grade() }}</td>
 		<td><a href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}">Update grade</a><td>
 	<!--<td><a href="/teacher/{{ teacher.get_ID() }}/update_comments/{{ student.get_ID() }}">Update comments</a><td>-->
         </tr>
