@@ -15,4 +15,5 @@ def create_db(crypter):
         c.execute("INSERT INTO users VALUES('2', ?, ?, 'student', 'C2', ?, ?)",(crypter.encrypt(b"Sam"), generate_password_hash("Password_12345"),crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
         c.execute("INSERT INTO users VALUES('3', ?, ?, 'teacher', 'C1', ?, ?)",(crypter.encrypt(b"Jake"), generate_password_hash("Password_12345"),crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
 
-#create_db(crypter=Fernet(key))
+if __name__ == "__main__":
+    create_db(crypter=Fernet(key))
