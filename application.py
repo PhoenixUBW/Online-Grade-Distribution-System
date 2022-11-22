@@ -4,7 +4,7 @@ from cryptography.fernet import Fernet
 import os.path
 import sqlite3
 from datetime import date
-from database_initliasation import create_user_db, create_grades_db
+from database_initialisation import create_user_db, create_grades_db
 from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
@@ -398,11 +398,16 @@ def create_user():
                 if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                     with sqlite3.connect(config.get_user_DB()) as con:
                         c = con.cursor()
-                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, 'NONE', 'NONE')",
+                        c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?)",
                                   (request.form["ID"],
                                   crypter.encrypt(bytes(request.form["name"], "utf-8")),
                                   generate_password_hash(request.form["passphrase"]),
-                                  request.form["account_type"],request.form["class_code"],))
+                                  request.form["account_type"],
+                                  request.form["class_code"]))
+                    if request.form["account_type"] == "student":
+                        with sqlite3.connect(config.get_grades_DB()) as con:
+                            c = con.cursor()
+                            c.execute("INSERT INTO grades VALUES(?,'NONE','NONE')",(request.form["ID"]))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "
