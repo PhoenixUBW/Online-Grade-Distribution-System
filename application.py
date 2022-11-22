@@ -4,12 +4,12 @@ from cryptography.fernet import Fernet
 import os.path
 import sqlite3
 from datetime import date
-from users_creation import create_db
+from database_initliasation import create_user_db, create_grades_db
 from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
-#TO-DO - css/make it look good, securely kept keys
+#TO-DO - normalise database, css/make it look good, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
@@ -26,8 +26,9 @@ NUMBERS = ["0","1","2","3","4","5","6","7","8","9"]
 ALPHABET = [" ","a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
            "z","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
-if os.path.exists(config.get_DB()) == False:
-    create_db(crypter) 
+if os.path.exists(config.get_user_DB()) == False:
+    create_user_db(crypter) 
+    create_grades_db(crypter)
 
 def valid_ID(data):
     error = None
@@ -105,7 +106,7 @@ def valid_grade(data):
     return True, error
 
 def list_ID():
-    with sqlite3.connect(config.get_DB()) as con: 
+    with sqlite3.connect(config.get_user_DB()) as con: 
         c = con.cursor()
         c.execute("SELECT ID FROM users")
         temp = c.fetchall()
@@ -127,9 +128,9 @@ def user_required(user_name):
 
 class Student():
     def __init__(self,ID):
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_grades_DB()) as con:
             c = con.cursor()
-            c.execute("SELECT grade, date_grade FROM users WHERE ID=?",(ID,))
+            c.execute("SELECT grade, date FROM grades WHERE ID=?",(ID,))
             info = c.fetchall()[0]
         self.__grade = crypter.decrypt(info[0]).decode("UTF-8")
         self.__date_grade = crypter.decrypt(info[1]).decode("UTF-8")
@@ -145,36 +146,36 @@ class Teacher():
     def __init__(self,target):
         self.__target = target
     def update_grade(self,newgrade): 
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_grades_DB()) as con:
             c = con.cursor()
-            c.execute("UPDATE users SET grade=?, date_grade=? WHERE ID=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target))
+            c.execute("UPDATE grades SET grade=?, date=? WHERE ID=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target))
 
 class Admin():
     def __init__(self,target):
         self.__target = target
     def update_name(self,newname):
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(newname, "utf-8")), self.__target))
 
     def update_passphrase(self, newpassphrase):
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(generate_password_hash(newpassphrase), self.__target))
 
     def update_class_code(self, newclass_code):
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET class_code=? WHERE ID=?",(newclass_code, self.__target))
 
     def delete(self):
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("DELETE FROM users WHERE ID=?",(self.__target,))
 
 class User():
     def __init__(self,ID):
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("SELECT * FROM users WHERE ID=?",(ID,))
             info = c.fetchall()[0]
@@ -257,7 +258,7 @@ def teacher_homepage(teacher_ID):
     error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("student",teacher.get_class_code()))
             lt_students = c.fetchall()
@@ -294,7 +295,7 @@ def teacher_update_grade(teacher_ID,student_ID):
 def admin_homepage():
     error = None
     if user_required(config.get_ADMIN_USERNAME()) == True:
-        with sqlite3.connect(config.get_DB()) as con:
+        with sqlite3.connect(config.get_user_DB()) as con:
             c = con.cursor()
             c.execute("SELECT ID FROM users WHERE account_type='student' OR account_type='teacher'")
             lt_users = c.fetchall()
@@ -395,7 +396,7 @@ def create_user():
                 error = valid_class_code(request.form["class_code"])[1]
             if valid_user == True:
                 if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                    with sqlite3.connect(config.get_DB()) as con:
+                    with sqlite3.connect(config.get_user_DB()) as con:
                         c = con.cursor()
                         c.execute("INSERT INTO users VALUES(?, ?, ?, ?, 'NONE', 'NONE')",
                                   (request.form["ID"],

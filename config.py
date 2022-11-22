@@ -2,7 +2,8 @@ class DefualtConfig():
     def __init__(self):
         self.set_DEBUG(False)
         self.set_SECRET_KEY("secret") #make safe
-        self.set_DB("users.db")
+        self.set_USER_DB("users.db")
+        self.set_GRADES_DB("grades.db")
         self.set_ADMIN_USERNAME("admin") #make safe
         self.set_ADMIN_PASSPHRASE("admin") #make safe
         self.set_EN_KEY(b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=') #make safe
@@ -13,8 +14,11 @@ class DefualtConfig():
     def set_SECRET_KEY(self,value):
         self.__SECRET_KEY = value
 
-    def set_DB(self,value):
-        self.__DB = value
+    def set_USER_DB(self,value):
+        self.__USER_DB = value
+    
+    def set_GRADES_DB(self,value):
+        self.__GRADES_DB = value
 
     def set_ADMIN_USERNAME(self,value):
         self.__ADMIN_USERNAME = value
@@ -31,8 +35,11 @@ class DefualtConfig():
     def get_SECRET_KEY(self):
         return self.__SECRET_KEY
 
-    def get_DB(self):
-        return self.__DB
+    def get_USER_DB(self):
+        return self.__USER_DB
+    
+    def get_GRADES_DB(self):
+        return self.__GRADES_DB
 
     def get_ADMIN_USERNAME(self):
         return self.__ADMIN_USERNAME
