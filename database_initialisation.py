@@ -11,9 +11,9 @@ def create_user_db(crypter):
     with sqlite3.connect("users.db") as con:
         c = con.cursor()
         c.execute("CREATE TABLE users (ID INTEGER, name TEXT, hashed_passphrase TEXT, account_type TEXT, class_code TEXT)")
-        c.execute("INSERT INTO users VALUES(1, ?, ?, 'student', 'C1', ?, ?)",(crypter.encrypt(b"John"), generate_password_hash("Password_12345")))
-        c.execute("INSERT INTO users VALUES(2, ?, ?, 'student', 'C2', ?, ?)",(crypter.encrypt(b"Sam"), generate_password_hash("Password_12345")))
-        c.execute("INSERT INTO users VALUES(3, ?, ?, 'teacher', 'C1', ?, ?)",(crypter.encrypt(b"Jake"), generate_password_hash("Password_12345")))
+        c.execute("INSERT INTO users VALUES(1, ?, ?, 'student', 'C1')",(crypter.encrypt(b"John"), generate_password_hash("Password_12345")))
+        c.execute("INSERT INTO users VALUES(2, ?, ?, 'student', 'C2')",(crypter.encrypt(b"Sam"), generate_password_hash("Password_12345")))
+        c.execute("INSERT INTO users VALUES(3, ?, ?, 'teacher', 'C1')",(crypter.encrypt(b"Jake"), generate_password_hash("Password_12345")))
 
 def create_grades_db(crypter):
     with sqlite3.connect("grades.db") as con:
