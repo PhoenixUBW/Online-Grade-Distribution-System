@@ -2,20 +2,23 @@
 <html lang="en">
 <head>
 	<meta name="viewport" content="width=device-width, inital-scale=1" />
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 	{% block head %}{% endblock %}
 </head>
 	<body>
-		<div class="container">
-			{% if error %}
-			<p class="error"><strong>Error:</strong> {{ error }}</p>
-			{% endif %}
-			{% block body %}{% endblock %}
-			<ul class=flashes>
-				{% for message in get_flashed_messages() %}
-				<li>{{ message }}</li>
-				{% endfor %}
-			</ul>
+		<div class="w3-bar w3-green">
+			<a href="{{ url_for("homepage") }}" class="w3-bar-item w3-button">Homepage</a>
+			<a href="{{ url_for("login") }}" class="w3-bar-item w3-button">login</a>
+			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button">logout</a>
 		</div>
+		{% if error %}
+		<p class="w3-panel w3-red w3-card-4"><strong>Error:</strong> {{ error }}</p>
+		{% endif %}
+		{% block body %}{% endblock %}
+		<ul class="w3-panel w3-card-4">
+			{% for message in get_flashed_messages() %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
 	</body>
 </html>

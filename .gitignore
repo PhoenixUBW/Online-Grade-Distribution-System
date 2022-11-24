@@ -6,4 +6,5 @@
 /.vscode
 /__pycache__
 users.db
+grades.db
 testing comp.py

@@ -16,7 +16,7 @@
     <input type= {{ type }} name="{{ attribute }}" placeholder="{{ attribute }}" id="{{ attribute }}">
     <input type= {{ type }} name="confirm_{{ attribute }}" placeholder="confirm {{ attribute }}" id="confirm_{{ attribute }}" />
     <input type="password" name="admin_passphrase" placeholder="admin passphrase" id="admin_passphrase">
-    <input type="submit" value="Update {{ attribute }}">
+    <input class="w3-button" type="submit" value="Update {{ attribute }}">
 </form>
 <p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
 <p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>

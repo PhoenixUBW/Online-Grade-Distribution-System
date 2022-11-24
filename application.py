@@ -9,8 +9,8 @@ from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
-#TO-DO - normalise database, css/make it look good, securely kept keys
-#teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, store grades seperate to user.db?, encrypted class codes and account types?, locks you out for time after failed attemps?
+#TO-DO - change grade db to student info db, css/make it look good, securely kept keys
+#teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
 
@@ -107,13 +107,13 @@ def valid_grade(data):
     return True, error
 
 def list_ID():
-    with sqlite3.connect(config.get_user_DB()) as con: 
+    with sqlite3.connect(config.get_USER_DB()) as con: 
         c = con.cursor()
         c.execute("SELECT ID FROM users")
         temp = c.fetchall()
     IDs = list()
     for ID in temp:
-        IDs.append(ID[0])
+        IDs.append(str(ID[0]))
     return IDs
 
 def user_required(user_name):
@@ -176,7 +176,7 @@ class Admin():
 
 class User():
     def __init__(self,ID):
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("SELECT * FROM users WHERE ID=?",(ID,))
             info = c.fetchall()[0]
@@ -229,9 +229,11 @@ def login():
             session["ID"] = config.get_ADMIN_USERNAME()
             return redirect(url_for("admin_homepage"))
         IDs = list_ID()
+        var1 = valid_ID(request.form["ID"])[0]
+        var2 = request.form["ID"]
         if valid_ID(request.form["ID"])[0] == True and request.form["ID"] in IDs:
             user = User(request.form["ID"])
-            if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.get_hashed_passphrase(),request.form["passphrase"]) == True:
+            if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.get_hashed_passphrase(),request.form["passphrase"]) == True: #ERROR HERE, fix using breakpoints, will just be small inconsistency
                 session["ID"] = user.get_ID()
                 session["account_type"] = user.get_account_type()
                 flash("You have succesfully been logged in")                
