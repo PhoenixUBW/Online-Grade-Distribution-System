@@ -12,13 +12,11 @@
 			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button">logout</a>
 		</div>
 		{% if error %}
-		<p class="w3-panel w3-red w3-card-4"><strong>Error:</strong> {{ error }}</p>
+		<p class="w3-panel w3-pale-red"><strong>Error: {{ error }} <span onclick="this.parentElement.style.display='none'" class="w3-button w3-large">&times;</span></strong> </p>
 		{% endif %}
 		{% block body %}{% endblock %}
-		<ul class="w3-panel w3-card-4">
-			{% for message in get_flashed_messages() %}
-			<li>{{ message }}</li>
-			{% endfor %}
-		</ul>
+		{% for message in get_flashed_messages() %}
+			<p class="w3-panel">{{ message }} <span onclick="this.parentElement.style.display='none'" class="w3-button w3-large w3-hover-pale-red">&times;</span></p></li>
+		{% endfor %}
 	</body>
 </html>

@@ -9,7 +9,7 @@ from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
-#TO-DO - change grade db to student info db, css/make it look good, securely kept keys
+#TO-DO - uses stacks to make forwards and back buttons, change grade db to student info db, css/make it look good, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps?
 
 app = Flask(__name__)
@@ -116,9 +116,11 @@ def list_ID():
         IDs.append(str(ID[0]))
     return IDs
 
-def user_required(user_name):
+def user_required(ID):
     if "ID" in session:
-        if session["ID"] == user_name:
+        var1 = session["ID"]
+        var2 = ID
+        if session["ID"] == ID:
             return True
         else:
             flash("You are not logged in as the required user to view this page")
@@ -129,7 +131,7 @@ def user_required(user_name):
 
 class Student():
     def __init__(self,ID):
-        with sqlite3.connect(config.get_grades_DB()) as con:
+        with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
             c.execute("SELECT grade, date FROM grades WHERE ID=?",(ID,))
             info = c.fetchall()[0]
@@ -147,7 +149,7 @@ class Teacher():
     def __init__(self,target):
         self.__target = target
     def update_grade(self,newgrade): 
-        with sqlite3.connect(config.get_grades_DB()) as con:
+        with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE grades SET grade=?, date=? WHERE ID=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target))
 
@@ -229,12 +231,10 @@ def login():
             session["ID"] = config.get_ADMIN_USERNAME()
             return redirect(url_for("admin_homepage"))
         IDs = list_ID()
-        var1 = valid_ID(request.form["ID"])[0]
-        var2 = request.form["ID"]
         if valid_ID(request.form["ID"])[0] == True and request.form["ID"] in IDs:
             user = User(request.form["ID"])
             if valid_passphrase(request.form["passphrase"])[0] == True and check_password_hash(user.get_hashed_passphrase(),request.form["passphrase"]) == True: #ERROR HERE, fix using breakpoints, will just be small inconsistency
-                session["ID"] = user.get_ID()
+                session["ID"] = str(user.get_ID())
                 session["account_type"] = user.get_account_type()
                 flash("You have succesfully been logged in")                
                 if user.get_account_type() == "student":
@@ -261,7 +261,7 @@ def teacher_homepage(teacher_ID):
     error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("student",teacher.get_class_code()))
             lt_students = c.fetchall()

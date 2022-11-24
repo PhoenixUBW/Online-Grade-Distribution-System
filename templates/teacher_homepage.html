@@ -7,10 +7,10 @@
 {% block body %}
 
 
-	<h1>Welcome {{ teacher.get_name() }}</h1>
+<h1 class="w3-container">Welcome {{ teacher.get_name() }}</h1>
 
-<table>
-	<tr>
+<table class="w3-table-all w3-centered">
+	<tr class="w3-khaki">
 		<th>Students</th>
 		<th>Grade</th>
 		<th>Date Updated</th>
@@ -18,15 +18,11 @@
 	{% for student in students %}
 	<tr>
 		<td>{{ student.get_name() }}</td>
-		<td>{{ student.student.get_grade() }}</td>
+		<td><a href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}" class="w3-button w3-round-xlarge w3-hover-khaki">{{ student.student.get_grade() }}</a></td>
 		<td>{{ student.student.get_date_grade() }}</td>
-		<td><a href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}">Update grade</a><td>
-	<!--<td><a href="/teacher/{{ teacher.get_ID() }}/update_comments/{{ student.get_ID() }}">Update comments</a><td>-->
-        </tr>
+    </tr>
 	{% endfor %}
 </table>
 <br>
-
-<p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
 
 {% endblock %}

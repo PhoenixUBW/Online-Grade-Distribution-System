@@ -6,20 +6,20 @@
 
 {% block body %}
 
-<h1>Welcome {{ student.get_name() }}</h1>
+<div>
+    <h1 class="w3-container">Welcome {{ student.get_name() }}</h1>
 
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Grade</th>
-        <th>Date Updated</th>
-    </tr>
-    <tr>
-        <td>{{ student.get_name() }}</td>
-        <td>{{ student.student.get_grade() }}</td>
-        <td>{{ student.student.get_date_grade() }}</td>
-    </tr>
+    <table class="w3-table-all w3-centered">
+        <tr class="w3-khaki">
+            <th>ID</th>
+            <th>Grade</th>
+            <th>Date Updated</th>
+        </tr>
+        <tr>
+            <td>{{ student.get_ID() }}</td>
+            <td>{{ student.student.get_grade() }}</td>
+            <td>{{ student.student.get_date_grade() }}</td>
+        </tr>
     </table>
-<p>Click <a href="{{ url_for("logout") }}">here</a> to logout</p>
-
+</div>
 {% endblock %}
