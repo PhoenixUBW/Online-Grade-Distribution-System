@@ -6,13 +6,13 @@
 	{% block head %}{% endblock %}
 </head>
 	<body>
-		<div class="w3-bar w3-green">
-			<a href="{{ url_for("homepage") }}" class="w3-bar-item w3-button">Homepage</a>
-			<a href="{{ url_for("login") }}" class="w3-bar-item w3-button">login</a>
-			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button">logout</a>
+		<div class="w3-bar w3-green w3-display-container">
+			<a href="{{ url_for("homepage") }}" class="w3-bar-item w3-button w3-hover-khaki">Homepage</a>
+			<a href="{{ url_for("login") }}" class="w3-bar-item w3-button w3-hover-khaki w3-display-right">login</a>
+			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button w3-hover-khaki">logout</a>
 		</div>
 		{% if error %}
-		<p class="w3-panel w3-pale-red"><strong>Error: {{ error }} <span onclick="this.parentElement.style.display='none'" class="w3-button w3-large">&times;</span></strong> </p>
+		<p class="w3-panel w3-pale-red"><strong>Error: {{ error }}</p>
 		{% endif %}
 		{% block body %}{% endblock %}
 		{% for message in get_flashed_messages() %}
