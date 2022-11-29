@@ -8,8 +8,8 @@
 	<body>
 		<div class="w3-bar w3-green w3-display-container">
 			<a href="{{ url_for("homepage") }}" class="w3-bar-item w3-button w3-hover-khaki">Homepage</a>
-			<a href="{{ url_for("login") }}" class="w3-bar-item w3-button w3-hover-khaki w3-display-right">login</a>
-			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button w3-hover-khaki">logout</a>
+			<a href="{{ url_for("login") }}" class="w3-bar-item w3-button w3-hover-khaki ">login</a>
+			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button w3-hover-khaki w3-display-right">logout</a>
 		</div>
 		{% if error %}
 		<p class="w3-panel w3-pale-red"><strong>Error: {{ error }}</p>

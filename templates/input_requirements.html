@@ -6,11 +6,36 @@
 
 {% block body %}
 
-<h1>Requirements</h1>
-<p>Numbers: {{ numbers }}</p>
-<p>Symbols: {{ symbols }}</p>
-<p>Grades: {{ grades }}</p>
-<p>Alphabet: {{ letters }}</p>
-
+<div class="w3-container">
+    <h1>Valid Input Sets</h1>
+    <div class="w3-card w3-padding">
+        <b>Letters: </b>
+        <br>
+        {% for value in letters %}
+            {{ value }}
+        {% endfor %}
+    </div>
+    <div class="w3-card w3-padding">
+        <b>Numbers: </b>
+        <br>
+        {% for value in numbers %}
+            {{ value }}
+        {% endfor %}
+    </div>
+    <div class="w3-card w3-padding">
+        <b>Symbols: </b>
+        <br>
+        {% for value in symbols %}
+            {{ value }}
+        {% endfor %}
+    </div>
+    <div class="w3-card w3-padding">
+        <b>Grades: </b>
+        <br>
+        {% for value in grades %}
+            {{ value }}
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock %}

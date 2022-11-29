@@ -298,7 +298,7 @@ def teacher_update_grade(teacher_ID,student_ID):
 def admin_homepage():
     error = None
     if user_required(config.get_ADMIN_USERNAME()) == True:
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("SELECT ID FROM users WHERE account_type='student' OR account_type='teacher'")
             lt_users = c.fetchall()
