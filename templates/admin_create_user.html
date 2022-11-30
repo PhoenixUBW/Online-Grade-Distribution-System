@@ -5,19 +5,19 @@
 {% endblock %}
 
 {% block body %}
-
-<h1>Creating user</h1>
-<p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
-<p>When creating a teacher account leave grade field blank</p>
-<form actions="{{ url_for("create_user") }}" method="POST">
-    <input type="text" name="ID" placeholder="ID" id="ID" />
-    <input type="text" name="name" placeholder="name" id="name">
-    <input type="password" name="passphrase" placeholder="passphrase" id="passphrase">
-    <input type="text" name="account_type" placeholder="account_type" id="account_type">
-    <input type="text" name="class_code" placeholder="class_code" id="class_code">
-    <input type="password" name="admin passphrase" placeholder="admin passphrase" id="admin_passphrase" />
-    <input class="w3-button" type="submit" value="Create user" />
-</form>
-<p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
+<div class="w3-container">
+    <h1>Creating user</h1>
+    <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+    <form class="w3-centered w3-card w3-animate-left" actions="{{ url_for("create_user") }}" method="POST">
+        <input class="w3-input w3-border w3-hover-grey" type="text" name="ID" placeholder="ID" id="ID" />
+        <input class="w3-input w3-border w3-hover-grey" type="text" name="name" placeholder="Name" id="name">
+        <input class="w3-input w3-border w3-hover-grey" type="password" name="passphrase" placeholder="Passphrase" id="passphrase">
+        <input class="w3-input w3-border w3-hover-grey" type="text" name="account_type" placeholder="Account Type" id="account_type">
+        <input class="w3-input w3-border w3-hover-grey" type="text" name="class_code" placeholder="Class Code" id="class_code">
+        <input class="w3-input w3-border w3-hover-grey" type="password" name="admin passphrase" placeholder="Confirm Admin Passphrase" id="admin_passphrase" />
+        <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Create user" />
+    </form>
+    <p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
+</div>
 
 {% endblock %}

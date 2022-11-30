@@ -6,18 +6,32 @@
 
 {% block body %}
 
-<h1>Updating: {{ attribute }}</h1>
-<h3>ID: {{ user.get_ID() }}</h3>
-<h3>Name: {{ user.get_name() }}</h3>
-<h3>Account Type: {{ user.get_account_type() }}</h3>
-<h3>Class Code: {{ user.get_class_code() }}</h3>
-<p><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
-<form actions="/admin/update_{{ attribute }}/{{ user.get_ID() }}" method="POST">
-    <input type= {{ type }} name="{{ attribute }}" placeholder="{{ attribute }}" id="{{ attribute }}">
-    <input type= {{ type }} name="confirm_{{ attribute }}" placeholder="confirm {{ attribute }}" id="confirm_{{ attribute }}" />
-    <input type="password" name="admin_passphrase" placeholder="admin passphrase" id="admin_passphrase">
-    <input class="w3-button" type="submit" value="Update {{ attribute }}">
-</form>
-<p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
+<div class="w3-container">
+    <h1>Updating: {{ attribute }}</h1>
+    <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+    <form class="w3-centered w3-card w3-animate-left" actions="/admin/update_{{ attribute }}/{{ user.get_ID() }}" method="POST">
+        <table class="w3-table-all w3-centered">
+            <tr class="w3-khaki">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Passphrase</th>
+                <th>Account Type</th>
+                <th>Class Code</th>
+            </tr>
+            <tr>
+                <td>{{ user.get_ID() }}</td>
+                <td><a href="/admin/update_name/{{ user.get_ID() }}" class="w3-button w3-round-xlarge w3-hover-khaki">{{ user.get_name() }}</a></td>
+                <td><a href="/admin/update_passphrase/{{ user.get_ID() }}" class="w3-button w3-round-xlarge w3-hover-khaki">unavailable</a></td>
+                <td>{{ user.get_account_type() }}</td>
+                <td><a href="/admin/update_class_code/{{ user.get_ID() }}" class="w3-button w3-round-xlarge w3-hover-khaki">{{ user.get_class_code()}}</a></td>
+            </tr>
+        </table>
+        <input class="w3-input w3-border w3-hover-grey" type= {{ type }} name="{{ attribute }}" placeholder="{{ attribute }}" id="{{ attribute }}">
+        <input class="w3-input w3-border w3-hover-grey" type= {{ type }} name="confirm_{{ attribute }}" placeholder="Confirm {{ attribute }}" id="confirm_{{ attribute }}" />
+        <input class="w3-input w3-border w3-hover-grey" type="password" name="admin_passphrase" placeholder="Confirm Admin Passphrase" id="admin_passphrase">
+        <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Update {{ attribute }}">
+    </form>
+    <p>Click <a href="{{ url_for("admin_homepage") }}">here</a> to go back</p>
+</div>
 
 {% endblock %}
