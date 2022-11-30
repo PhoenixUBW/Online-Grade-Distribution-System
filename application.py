@@ -12,6 +12,8 @@ from config import DevConfig, ProductionConfig
 #TO-DO - uses stacks to make forwards and back buttons, change grade db to student info db, css/make it look good, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps?
 
+#possible error at admin edit attributes as I changed the session dict key names
+
 app = Flask(__name__)
 
 config = DevConfig()
@@ -83,8 +85,8 @@ def valid_passphrase(data):
 
 def valid_account_type(data):
     error = None
-    if data != "student" and data != "teacher":
-        error = "Account type must = 'student' or 'teacher'"
+    if data != "Student" and data != "Teacher":
+        error = "Account type must = 'Student' or 'Teacher'"
         return False, error
     return True, error
 
@@ -189,9 +191,9 @@ class User():
         self.__account_type = info[3]
         self.__class_code = info[4]
         if "ID" in session:
-            if self.__account_type == "student":
+            if self.__account_type == "Student":
                 self.student = Student(ID)
-            if session["account_type"] == "teacher":
+            if session["account_type"] == "Teacher":
                 self.teacher = Teacher(ID)
             if session["ID"] == config.get_ADMIN_USERNAME():
                 self.admin = Admin(ID)
@@ -315,20 +317,20 @@ def update_name(user_ID):
     if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
-            if valid_name(request.form["name"])[0] == True:
-                if request.form["name"] == request.form["confirm_name"]:
+            if valid_name(request.form["attribute"])[0] == True:
+                if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                        user.admin.update_name(request.form["name"])
+                        user.admin.update_name(request.form["attribute"])
                         flash("Name succesfully updated")
                     else:
                         error = "Incorrect passphrase "
                 else:
                     error = "Please ensure both fields contain the same information "
             else:
-                error = valid_name(request.form["name"])[1]
+                error = valid_name(request.form["attribute"])[1]
     else:
         return redirect(url_for("admin"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.get_name(), attribute="name", type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_name(), attribute="Name", type = "text", error=error)
 
 @app.route("/admin/update_passphrase/<user_ID>", methods=["GET","POST"])
 def update_passphrase(user_ID): 
@@ -336,20 +338,20 @@ def update_passphrase(user_ID):
     if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
-            if valid_passphrase(request.form["passphrase"])[0] == True:
-                if request.form["passphrase"] == request.form["confirm_passphrase"]:
+            if valid_passphrase(request.form["attribute"])[0] == True:
+                if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                        user.admin.update_passphrase(request.form["passphrase"])
+                        user.admin.update_passphrase(request.form["attribute"])
                         flash("Passphrase succesfully updated")
                     else:
                         error = "Incorrect passphrase "
                 else:
                     error = "Please ensure both fields contain the same information "
             else:
-                error = valid_passphrase(request.form["passphrase"])[1]
+                error = valid_passphrase(request.form["attribute"])[1]
     else:
         return redirect(url_for("login"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.get_passphrase(), attribute="passphrase", type = "password",error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_passphrase(), attribute="Passphrase", type = "password",error=error)
 
 @app.route("/admin/update_class_code/<user_ID>", methods=["GET","POST"])
 def update_class_code(user_ID):
@@ -357,20 +359,20 @@ def update_class_code(user_ID):
     if user_required(config.get_ADMIN_USERNAME()) == True:
         user = User(user_ID)
         if request.method == "POST":
-            if valid_class_code(request.form["class_code"])[0] == True:
-                if request.form["class_code"] == request.form["confirm_class_code"]:
+            if valid_class_code(request.form["attribute"])[0] == True:
+                if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                        user.admin.update_class_code(request.form["class_code"])
+                        user.admin.update_class_code(request.form["attribute"])
                         flash("Class code succesfully updated")
                     else:
                         error = "Incorrect passphrase "
                 else:
                     error = "Please ensure both fields contain the same information "
             else:
-                error = valid_class_code(request.form["class_code"])[1]
+                error = valid_class_code(request.form["attribute"])[1]
     else:
         return redirect(url_for("login"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.get_class_code(), attribute="class_code", type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_class_code(), attribute="Class Code", type = "text", error=error)
 
 @app.route("/admin/create_user", methods=["GET","POST"])
 def create_user():
