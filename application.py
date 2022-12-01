@@ -400,6 +400,7 @@ def create_user():
                 valid_user = False
                 error = valid_class_code(request.form["class_code"])[1]
             if valid_user == True:
+                var1 = request.form["admin_passphrase"]
                 if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                     with sqlite3.connect(config.get_user_DB()) as con:
                         c = con.cursor()

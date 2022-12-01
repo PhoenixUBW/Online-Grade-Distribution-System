@@ -12,9 +12,13 @@
         <input class="w3-input w3-border w3-hover-grey" type="text" name="ID" placeholder="ID" id="ID" />
         <input class="w3-input w3-border w3-hover-grey" type="text" name="name" placeholder="Name" id="name">
         <input class="w3-input w3-border w3-hover-grey" type="password" name="passphrase" placeholder="Passphrase" id="passphrase">
-        <input class="w3-input w3-border w3-hover-grey" type="text" name="account_type" placeholder="Account Type" id="account_type">
+        <select class="w3-select" name="account_type">
+            <option value="" disabled selected>Account Type</option>
+            <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
+        </select>
         <input class="w3-input w3-border w3-hover-grey" type="text" name="class_code" placeholder="Class Code" id="class_code">
-        <input class="w3-input w3-border w3-hover-grey" type="password" name="admin passphrase" placeholder="Confirm Admin Passphrase" id="admin_passphrase" />
+        <input class="w3-input w3-border w3-hover-grey" type="password" name="admin_passphrase" placeholder="Confirm Admin Passphrase" id="admin_passphrase" />
         <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Create user" />
     </form>
     <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="{{ url_for("admin_homepage") }}">back</a></p>
