@@ -159,22 +159,22 @@ class Admin():
     def __init__(self,target):
         self.__target = target
     def update_name(self,newname):
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET name=? WHERE ID=?",(crypter.encrypt(bytes(newname, "utf-8")), self.__target))
 
     def update_passphrase(self, newpassphrase):
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET hashed_passphrase=? WHERE ID=?",(generate_password_hash(newpassphrase), self.__target))
 
     def update_class_code(self, newclass_code):
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE users SET class_code=? WHERE ID=?",(newclass_code, self.__target))
 
     def delete(self):
-        with sqlite3.connect(config.get_user_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("DELETE FROM users WHERE ID=?",(self.__target,))
 
