@@ -26,8 +26,8 @@
                 <td><a href="/admin/update_class_code/{{ user.get_ID() }}" class="w3-button w3-round-xlarge w3-hover-khaki">{{ user.get_class_code()}}</a></td>
             </tr>
         </table>
-        <input class="w3-input w3-border w3-hover-grey" type= {{ type }} name="{{ attribute }}" placeholder="{{ attribute }}" id="attribute">
-        <input class="w3-input w3-border w3-hover-grey" type= {{ type }} name="confirm_{{ attribute }}" placeholder="Confirm {{ attribute }}" id="confirm_attribute" />
+        <input class="w3-input w3-border w3-hover-grey" type= {{ type }} name="attribute" placeholder="{{ attribute }}" id="attribute">
+        <input class="w3-input w3-border w3-hover-grey" type= {{ type }} name="confirm_attribute" placeholder="Confirm {{ attribute }}" id="confirm_attribute" />
         <input class="w3-input w3-border w3-hover-grey" type="password" name="admin_passphrase" placeholder="Confirm Admin Passphrase" id="admin_passphrase">
         <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Update {{ attribute }}">
     </form>

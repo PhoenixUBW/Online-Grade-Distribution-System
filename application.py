@@ -239,7 +239,7 @@ def login():
                 session["ID"] = str(user.get_ID())
                 session["account_type"] = user.get_account_type()
                 flash("You have succesfully been logged in")                
-                if user.get_account_type() == "student":
+                if user.get_account_type() == "Student":
                     return redirect(f"/student/{user.get_ID()}")
                 elif user.get_account_type() == "teacher":
                     return redirect(f"/teacher/{user.get_ID()}")
@@ -265,7 +265,7 @@ def teacher_homepage(teacher_ID):
         teacher = User(teacher_ID)
         with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
-            c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("student",teacher.get_class_code()))
+            c.execute("SELECT ID FROM users WHERE account_type=? AND class_code=?",("Student",teacher.get_class_code()))
             lt_students = c.fetchall()
             students = list()
             for student in lt_students:
@@ -302,7 +302,7 @@ def admin_homepage():
     if user_required(config.get_ADMIN_USERNAME()) == True:
         with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
-            c.execute("SELECT ID FROM users WHERE account_type='student' OR account_type='teacher'")
+            c.execute("SELECT ID FROM users WHERE account_type='Student' OR account_type='Teacher'")
             lt_users = c.fetchall()
             users = list()
             for user in lt_users:
@@ -400,9 +400,8 @@ def create_user():
                 valid_user = False
                 error = valid_class_code(request.form["class_code"])[1]
             if valid_user == True:
-                var1 = request.form["admin_passphrase"]
                 if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
-                    with sqlite3.connect(config.get_user_DB()) as con:
+                    with sqlite3.connect(config.get_USER_DB()) as con:
                         c = con.cursor()
                         c.execute("INSERT INTO users VALUES(?, ?, ?, ?, ?)",
                                   (request.form["ID"],
@@ -410,7 +409,7 @@ def create_user():
                                   generate_password_hash(request.form["passphrase"]),
                                   request.form["account_type"],
                                   request.form["class_code"]))
-                    if request.form["account_type"] == "student":
+                    if request.form["account_type"] == "Student":
                         with sqlite3.connect(config.get_grades_DB()) as con:
                             c = con.cursor()
                             c.execute("INSERT INTO grades VALUES(?,'NONE','NONE')",(request.form["ID"]))
