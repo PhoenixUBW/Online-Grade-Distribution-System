@@ -215,15 +215,22 @@ class User():
 
     def get_class_code(self):
         return self.__class_code
+
+def logged_in():
+    if "ID" in session:
+        user=User(session["ID"])
+        return f"Logged in as: {user.get_name()}"
+    else:
+        return "Login"
     
 @app.errorhandler(404)
 def not_found(error_number):
-    return render_template("404.html")
+    return render_template("404.html", logged_in=logged_in())
 
 @app.route("/")
 def homepage():
     error = None
-    return render_template("homepage.html", error=error)
+    return render_template("homepage.html", error=error, logged_in=logged_in())
 
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -247,7 +254,7 @@ def login():
                 error = "Invalid passphrase"
         else:
             error = "Invalid ID"
-    return render_template("login.html", error=error)
+    return render_template("login.html", error=error, logged_in=logged_in())
 
 @app.route("/student/<student_ID>")
 def student_homepage(student_ID):
@@ -256,7 +263,7 @@ def student_homepage(student_ID):
         student = User(student_ID)
     else:
         return redirect(url_for("login"))
-    return render_template("student_homepage.html", student=student, error=error)
+    return render_template("student_homepage.html", student=student, error=error, logged_in=logged_in())
 
 @app.route("/teacher/<teacher_ID>")
 def teacher_homepage(teacher_ID):
@@ -272,7 +279,7 @@ def teacher_homepage(teacher_ID):
                 students.append(User(student[0]))
     else:
         return redirect(url_for("login"))
-    return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error) 
+    return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error, logged_in=logged_in()) 
 
 @app.route("/teacher/<teacher_ID>/update_grade/<student_ID>", methods=["GET","POST"])
 def teacher_update_grade(teacher_ID,student_ID):
@@ -294,7 +301,7 @@ def teacher_update_grade(teacher_ID,student_ID):
             error = "This student is not in your class "
     else:
         return redirect(url_for("login"))
-    return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error)
+    return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error, logged_in=logged_in())
 
 @app.route("/admin")
 def admin_homepage():
@@ -309,7 +316,7 @@ def admin_homepage():
                 users.append(User(user[0]))
     else:
         return redirect(url_for("login"))
-    return render_template("admin_homepage.html", users=users, error=error)
+    return render_template("admin_homepage.html", users=users, error=error, logged_in=logged_in())
 
 @app.route("/admin/update_name/<user_ID>", methods=["GET","POST"])
 def update_name(user_ID):
@@ -330,7 +337,7 @@ def update_name(user_ID):
                 error = valid_name(request.form["attribute"])[1]
     else:
         return redirect(url_for("admin"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.get_name(), attribute="Name", type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_name(), attribute="Name", type = "text", error=error, logged_in=logged_in())
 
 @app.route("/admin/update_passphrase/<user_ID>", methods=["GET","POST"])
 def update_passphrase(user_ID): 
@@ -351,7 +358,7 @@ def update_passphrase(user_ID):
                 error = valid_passphrase(request.form["attribute"])[1]
     else:
         return redirect(url_for("login"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.get_passphrase(), attribute="Passphrase", type = "password",error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_passphrase(), attribute="Passphrase", type = "password",error=error, logged_in=logged_in())
 
 @app.route("/admin/update_class_code/<user_ID>", methods=["GET","POST"])
 def update_class_code(user_ID):
@@ -372,7 +379,7 @@ def update_class_code(user_ID):
                 error = valid_class_code(request.form["attribute"])[1]
     else:
         return redirect(url_for("login"))
-    return render_template("admin_edit_attribute.html", user=user, value=user.get_class_code(), attribute="Class Code", type = "text", error=error)
+    return render_template("admin_edit_attribute.html", user=user, value=user.get_class_code(), attribute="Class Code", type = "text", error=error, logged_in=logged_in())
 
 @app.route("/admin/create_user", methods=["GET","POST"])
 def create_user():
@@ -418,7 +425,7 @@ def create_user():
                     error = "Incorrect passphrase "
     else:
         return redirect(url_for("login"))
-    return render_template("admin_create_user.html", error=error)
+    return render_template("admin_create_user.html", error=error, logged_in=logged_in())
 
 @app.route("/admin/delete_user/<user_ID>", methods=["GET","POST"])
 def delete_user(user_ID):
@@ -434,7 +441,7 @@ def delete_user(user_ID):
                 error = "Incorrect passphrase"
     else:
         return redirect(url_for("login"))
-    return render_template("admin_delete_user.html", error=error, user_ID=user_ID)
+    return render_template("admin_delete_user.html", error=error, user_ID=user_ID, logged_in=logged_in())
 
 @app.route("/logout")
 def logout():
@@ -455,7 +462,7 @@ def current_user(previous_url):
 
 @app.route("/input_requirements")
 def input_requirements():
-    return render_template("input_requirements.html", grades=VALID_GRADES, letters=ALPHABET, numbers=NUMBERS, symbols=SYMBOLS)
+    return render_template("input_requirements.html", grades=VALID_GRADES, letters=ALPHABET, numbers=NUMBERS, symbols=SYMBOLS, logged_in=logged_in())
 
 if __name__ == "__main__":
     app.run(debug=config.get_DEBUG())
