@@ -9,10 +9,8 @@ from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
-#TO-DO - uses stacks to make forwards and back buttons, change grade db to student info db, css/make it look good, securely kept keys
-#teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps?
-
-#possible error at admin edit attributes as I changed the session dict key names
+#TO-DO - database initialisation uses config rather than hardcoded key,multiple subjects, multiple grades, uses stacks to make forwards and back buttons, settings, change grade db to student info db, securely kept keys
+#teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps
 
 app = Flask(__name__)
 
@@ -135,17 +133,32 @@ class Student():
     def __init__(self,ID):
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
-            c.execute("SELECT grade, date FROM grades WHERE ID=?",(ID,))
-            info = c.fetchall()[0]
-        self.__grade = crypter.decrypt(info[0]).decode("UTF-8")
-        self.__date_grade = crypter.decrypt(info[1]).decode("UTF-8")
+            c.execute("SELECT subject ,grade, date FROM grades WHERE ID=?",(ID,))
+            info=[]
+            for x in range(0,len(c.fetchall())):
+                for y in range(0,2):
+                    info[x][y] = crypter.decrypt(c.fetchall()[x][y]).decode("UTF-8")
+            subjects = []
+            grades = []
+            dates = []
+            for x in range(0,len(c.fetchall())-1):
+                subjects.append(c.fetchall()[x][0])
+            for x in range(0,len(c.fetchall())-1):
+                grades.append(c.fetchall()[x][1])
+            for x in range(0,len(c.fetchall())-1):
+                dates.append(c.fetchall()[x][2])
+        self.__subjects = subjects
+        self.__grades = grades
+        self.__dates = dates
 
+    def get_subjects(self):
+        return self.__subjects
 
-    def get_grade(self):
-        return self.__grade
+    def get_grades(self):
+        return self.__grades
 
-    def get_date_grade(self):
-        return self.__date_grade
+    def get_dates(self):
+        return self.__dates
 
 class Teacher():
     def __init__(self,target):
@@ -218,8 +231,11 @@ class User():
 
 def logged_in():
     if "ID" in session:
-        user=User(session["ID"])
-        return f"Logged in as: {user.get_name()}"
+        if session["ID"] == "admin":
+            return "Logged in as: Admin"
+        else:
+            user=User(session["ID"])
+            return f"Logged in as: {user.get_name()}"
     else:
         return "Login"
     

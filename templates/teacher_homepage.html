@@ -19,7 +19,9 @@
 		{% for student in students %}
 		<tr>
 			<td>{{ student.get_name() }}</td>
-			<td>{{ student.student.get_grade() }}</td>
+			<td>{{ student.student.get_maths_grade() }}</td>
+            <td>{{ student.student.get_english_grade }}</td>
+            <td>{{ student.student.get_science_grade }}</td>
 			<td>{{ student.student.get_date_grade() }}</td>
 			<td><a class="w3-button w3-green w3-round-xlarge w3-hover-khaki" href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}">Update Grade</a></td>
 		</tr>
