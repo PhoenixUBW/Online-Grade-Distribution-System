@@ -134,19 +134,14 @@ class Student():
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
             c.execute("SELECT subject ,grade, date FROM grades WHERE ID=?",(ID,))
-            info=[]
-            for x in range(0,len(c.fetchall())):
-                for y in range(0,2):
-                    info[x][y] = crypter.decrypt(c.fetchall()[x][y]).decode("UTF-8")
             subjects = []
             grades = []
             dates = []
-            for x in range(0,len(c.fetchall())-1):
-                subjects.append(c.fetchall()[x][0])
-            for x in range(0,len(c.fetchall())-1):
-                grades.append(c.fetchall()[x][1])
-            for x in range(0,len(c.fetchall())-1):
-                dates.append(c.fetchall()[x][2])
+            fetch = c.fetchall()
+            for row in fetch:
+                subjects.append(crypter.decrypt(row[0]).decode("UTF-8"))
+                grades.append(crypter.decrypt(row[1]).decode("UTF-8"))
+                dates.append(crypter.decrypt(row[2]).decode("UTF-8"))
         self.__subjects = subjects
         self.__grades = grades
         self.__dates = dates
@@ -279,7 +274,8 @@ def student_homepage(student_ID):
         student = User(student_ID)
     else:
         return redirect(url_for("login"))
-    return render_template("student_homepage.html", student=student, error=error, logged_in=logged_in())
+    list = [] * len(student.student.get_subjects())
+    return render_template("student_homepage.html", student=student, error=error, logged_in=logged_in(), list=list)
 
 @app.route("/teacher/<teacher_ID>")
 def teacher_homepage(teacher_ID):

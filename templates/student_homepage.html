@@ -11,17 +11,17 @@
 
     <table class="w3-table-all w3-centered w3-card w3-animate-left">
         <tr class="w3-khaki">
-            <th>ID</th>
+            <th>Subject</th>
             <th>Grade</th>
             <th>Date Updated</th>
         </tr>
-        <tr>
-            <td>{{ student.get_ID() }}</td>
-            <td>{{ student.student.get_maths_grade() }}</td>
-            <td>{{ student.student.get_english_grade }}</td>
-            <td>{{ student.student.get_science_grade }}</td>
-            <td>{{ student.student.get_date_grade() }}</td>
-        </tr>
+        {{% for index in list %}}
+            <tr>
+                <td>{{ student.student.get_subjects()[index] }}</td>
+                <td>{{ student.student.get_grades()[index] }}</td>
+                <td>{{ student.student.get_dates()[index] }}</td>
+            </tr>
+        {{% endfor %}}
     </table>
 </div>
 {% endblock %}
