@@ -17,9 +17,10 @@
         </tr>
         {{% for index in list %}}
             <tr>
-                <td>{{ student.student.get_subjects()[index] }}</td>
+                <td>{{ index }}</td>
+                <!-- <td>{{ student.student.get_subjects()[index] }}</td>
                 <td>{{ student.student.get_grades()[index] }}</td>
-                <td>{{ student.student.get_dates()[index] }}</td>
+                <td>{{ student.student.get_dates()[index] }}</td> -->
             </tr>
         {{% endfor %}}
     </table>

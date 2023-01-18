@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Student - Homepage</title>
+{% endblock %}
+
+{% block body %}
+
+{{% for index in list %}}
+    {{ index }}
+        <!-- <td>{{ student.student.get_subjects()[index] }}</td>
+        <td>{{ student.student.get_grades()[index] }}</td>
+        <td>{{ student.student.get_dates()[index] }}</td> -->
+{{% endfor %}}

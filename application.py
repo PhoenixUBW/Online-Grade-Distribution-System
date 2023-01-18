@@ -476,5 +476,9 @@ def current_user(previous_url):
 def input_requirements():
     return render_template("input_requirements.html", grades=VALID_GRADES, letters=ALPHABET, numbers=NUMBERS, symbols=SYMBOLS, logged_in=logged_in())
 
+@app.route("/test")
+def test():
+    return render_template("test.html",list=[1,2,3,4,5])
+
 if __name__ == "__main__":
     app.run(debug=config.get_DEBUG())
