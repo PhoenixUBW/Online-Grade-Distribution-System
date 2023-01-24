@@ -12,6 +12,8 @@ from config import DevConfig, ProductionConfig
 #TO-DO - database initialisation uses config rather than hardcoded key,multiple subjects, multiple grades, uses stacks to make forwards and back buttons, settings, change grade db to student info db, securely kept keys
 #teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps
 
+#working but subject doesnt actually get updated
+
 app = Flask(__name__)
 
 config = DevConfig()
@@ -133,18 +135,22 @@ class Student():
     def __init__(self,ID):
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
-            c.execute("SELECT subject ,grade, date FROM grades WHERE ID=?",(ID,))
+            c.execute("SELECT subject ,grade, date_updated FROM grades WHERE ID=?",(ID,))
             subjects = []
             grades = []
             dates = []
             fetch = c.fetchall()
             for row in fetch:
-                subjects.append(crypter.decrypt(row[0]).decode("UTF-8"))
+                subjects.append(row[0])
                 grades.append(crypter.decrypt(row[1]).decode("UTF-8"))
                 dates.append(crypter.decrypt(row[2]).decode("UTF-8"))
+        num_subjects = []
+        for x in range(0,len(subjects)):
+            num_subjects.append(x)
         self.__subjects = subjects
         self.__grades = grades
         self.__dates = dates
+        self.__num_subjects = num_subjects
 
     def get_subjects(self):
         return self.__subjects
@@ -154,14 +160,17 @@ class Student():
 
     def get_dates(self):
         return self.__dates
+    
+    def get_num_subjects(self):
+        return self.__num_subjects
 
 class Teacher():
     def __init__(self,target):
         self.__target = target
-    def update_grade(self,newgrade): 
+    def update_grade(self,newgrade,subject): 
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
-            c.execute("UPDATE grades SET grade=?, date=? WHERE ID=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target))
+            c.execute("UPDATE grades SET grade=?, date_updated=? WHERE ID=? AND WHERE grade=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target, subject))
 
 class Admin():
     def __init__(self,target):
@@ -259,7 +268,7 @@ def login():
                 flash("You have succesfully been logged in")                
                 if user.get_account_type() == "Student":
                     return redirect(f"/student/{user.get_ID()}")
-                elif user.get_account_type() == "teacher":
+                elif user.get_account_type() == "Teacher":
                     return redirect(f"/teacher/{user.get_ID()}")
             else:
                 error = "Invalid passphrase"
@@ -274,8 +283,7 @@ def student_homepage(student_ID):
         student = User(student_ID)
     else:
         return redirect(url_for("login"))
-    list = [] * len(student.student.get_subjects())
-    return render_template("student_homepage.html", student=student, error=error, logged_in=logged_in(), list=list)
+    return render_template("student_homepage.html", student=student, error=error, logged_in=logged_in())
 
 @app.route("/teacher/<teacher_ID>")
 def teacher_homepage(teacher_ID):
@@ -291,10 +299,11 @@ def teacher_homepage(teacher_ID):
                 students.append(User(student[0]))
     else:
         return redirect(url_for("login"))
+
     return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error, logged_in=logged_in()) 
 
-@app.route("/teacher/<teacher_ID>/update_grade/<student_ID>", methods=["GET","POST"])
-def teacher_update_grade(teacher_ID,student_ID):
+@app.route("/teacher/<teacher_ID>/update_grade/<student_ID>/<subject_index>", methods=["GET","POST"])
+def teacher_update_grade(teacher_ID,student_ID,subject_index):
     error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
@@ -303,7 +312,7 @@ def teacher_update_grade(teacher_ID,student_ID):
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
                     if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
-                        student.teacher.update_grade(request.form["grade"])
+                        student.teacher.update_grade(request.form["grade"],student.student.get_subjects()[subject_index]) #not updating
                         flash("Grade successfully updated")
                     else:
                         error = "Incorrect password "
@@ -313,7 +322,7 @@ def teacher_update_grade(teacher_ID,student_ID):
             error = "This student is not in your class "
     else:
         return redirect(url_for("login"))
-    return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error, logged_in=logged_in())
+    return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error, logged_in=logged_in(), subject_index=int(subject_index))
 
 @app.route("/admin")
 def admin_homepage():
@@ -431,7 +440,7 @@ def create_user():
                     if request.form["account_type"] == "Student":
                         with sqlite3.connect(config.get_grades_DB()) as con:
                             c = con.cursor()
-                            c.execute("INSERT INTO grades VALUES(?,'NONE','NONE')",(request.form["ID"]))
+                            c.execute("INSERT INTO grades VALUES(?,'NONE','NONE')",(request.form["ID"],))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "

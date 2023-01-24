@@ -8,21 +8,19 @@
 
 <div class="w3-container">
     <h1>Welcome {{ student.get_name() }}</h1>
-
     <table class="w3-table-all w3-centered w3-card w3-animate-left">
         <tr class="w3-khaki">
             <th>Subject</th>
             <th>Grade</th>
             <th>Date Updated</th>
         </tr>
-        {{% for index in list %}}
-            <tr>
-                <td>{{ index }}</td>
-                <!-- <td>{{ student.student.get_subjects()[index] }}</td>
-                <td>{{ student.student.get_grades()[index] }}</td>
-                <td>{{ student.student.get_dates()[index] }}</td> -->
-            </tr>
-        {{% endfor %}}
+        {% for index in student.student.get_num_subjects() %}
+        <tr>
+            <td>{{ student.student.get_subjects()[index] }}</td>
+            <td>{{ student.student.get_grades()[index] }}</td>
+            <td>{{ student.student.get_dates()[index] }}</td>
+        </tr>
+        {% endfor %}
     </table>
 </div>
 {% endblock %}

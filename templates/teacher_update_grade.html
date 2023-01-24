@@ -5,24 +5,23 @@
 {% endblock %}
 
 {% block body %}
-
 <div class="w3-container">
     <h1>Updating Student Grade</h1>
     <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
 
-    <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}" method="POST">
+    <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{ student.student.get_subjects()[subject_index] }}" method="POST">
         <table class="w3-table-all w3-centered">
             <tr class="w3-khaki">
                 <th>Student</th>
+                <th>Subject</th>
                 <th>Grade</th>
                 <th>Date Updated</th>
             </tr>
             <tr>
                 <td>{{ student.get_name() }}</td>
-                <td>{{ student.student.get_maths_grade() }}</td>
-                <td>{{ student.student.get_english_grade }}</td>
-                <td>{{ student.student.get_science_grade }}</td>
-                <td>{{ student.student.get_date_grade() }}</td>
+                <td>{{ student.student.get_subjects()[subject_index] }}</td>
+                <td>{{ student.student.get_grades()[subject_index] }}</td>
+                <td>{{ student.student.get_dates()[subject_index] }}</td>
             </tr>
         </table>
         <input class="w3-input w3-border w3-hover-grey" type="text" name="grade" placeholder="New Grade" id="grade">
