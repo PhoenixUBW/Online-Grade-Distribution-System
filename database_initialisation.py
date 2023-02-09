@@ -11,15 +11,15 @@ def create_user_db(crypter):
     with sqlite3.connect("users.db") as con:
         c = con.cursor()
         c.execute("CREATE TABLE users (ID INTEGER, name TEXT, hashed_passphrase TEXT, account_type TEXT, class_code TEXT)")
-        c.execute("INSERT INTO users VALUES(1, ?, ?, 'Student', 'C1')",(crypter.encrypt(b"John"), generate_password_hash("Password_12345")))
-        c.execute("INSERT INTO users VALUES(2, ?, ?, 'Teacher', 'C1')",(crypter.encrypt(b"Jake"), generate_password_hash("Password_12345")))
+        #c.execute("INSERT INTO users VALUES(1, ?, ?, 'Student', 'C1')",(crypter.encrypt(b"John"), generate_password_hash("Password_12345")))
+        #c.execute("INSERT INTO users VALUES(2, ?, ?, 'Teacher', 'C1')",(crypter.encrypt(b"Jake"), generate_password_hash("Password_12345")))
 
 def create_grades_db(crypter):
     with sqlite3.connect("grades.db") as con:
         c = con.cursor()
         c.execute("CREATE TABLE grades (ID INTEGER, subject TEXT, grade TEXT, date_updated TEXT)")
-        c.execute("INSERT INTO grades VALUES(1, 'Maths', ?, ?)",(crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
-        c.execute("INSERT INTO grades VALUES(1, 'Science', ?, ?)",(crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
+        #c.execute("INSERT INTO grades VALUES(1, 'Maths', ?, ?)",(crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
+        #c.execute("INSERT INTO grades VALUES(1, 'Science', ?, ?)",(crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
 
 if __name__ == "__main__":
     create_user_db(crypter)
