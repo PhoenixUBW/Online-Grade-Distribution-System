@@ -9,10 +9,8 @@ from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
-#TO-DO - database initialisation uses config rather than hardcoded key,multiple subjects, multiple grades, uses stacks to make forwards and back buttons, settings, change grade db to student info db, securely kept keys
-#teacher's comments?, attendance, behaviour, predicted grade, more modular update pages/functions, encrypted class codes and account types?, locks you out for time after failed attemps
-
-#working but subject doesnt actually get updated
+#TO-DO - database initialisation uses config rather than hardcoded key, uses stacks to make forwards and back buttons, securely kept keys
+#teacher's comments?, attendance, behaviour, predicted grade, puts a delay between login/password enter inputs after getting it wrong x times
 
 app = Flask(__name__)
 
@@ -170,7 +168,7 @@ class Teacher():
     def update_grade(self,newgrade,subject): 
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
-            c.execute("UPDATE grades SET grade=?, date_updated=? WHERE ID=? AND WHERE grade=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target, subject))
+            c.execute("UPDATE grades SET grade=?, date_updated=? WHERE ID=? AND subject=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target, subject))
 
 class Admin():
     def __init__(self,target):
@@ -312,8 +310,8 @@ def teacher_update_grade(teacher_ID,student_ID,subject_index):
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
                     if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
-                        student.teacher.update_grade(request.form["grade"],student.student.get_subjects()[subject_index]) #not updating
-                        flash("Grade successfully updated")
+                        student.teacher.update_grade(request.form["grade"],student.student.get_subjects()[int(subject_index)]) #not updating
+                        flash("Grade successfully updated, refresh to see changes!")
                     else:
                         error = "Incorrect password "
                 else:
@@ -349,7 +347,7 @@ def update_name(user_ID):
                 if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.admin.update_name(request.form["attribute"])
-                        flash("Name succesfully updated")
+                        flash("Name succesfully updated, refresh to see changes!")
                     else:
                         error = "Incorrect passphrase "
                 else:
@@ -370,7 +368,7 @@ def update_passphrase(user_ID):
                 if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.admin.update_passphrase(request.form["attribute"])
-                        flash("Passphrase succesfully updated")
+                        flash("Passphrase succesfully updated, refresh to see changes!")
                     else:
                         error = "Incorrect passphrase "
                 else:
@@ -391,7 +389,7 @@ def update_class_code(user_ID):
                 if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.admin.update_class_code(request.form["attribute"])
-                        flash("Class code succesfully updated")
+                        flash("Class code succesfully updated, refresh to see changes!")
                     else:
                         error = "Incorrect passphrase "
                 else:
@@ -438,7 +436,7 @@ def create_user():
                                   request.form["account_type"],
                                   request.form["class_code"]))
                     if request.form["account_type"] == "Student":
-                        with sqlite3.connect(config.get_grades_DB()) as con:
+                        with sqlite3.connect(config.get_GRADES_DB()) as con:
                             c = con.cursor()
                             c.execute("INSERT INTO grades VALUES(?,'NONE','NONE')",(request.form["ID"],))
                     flash("User successfully added")
