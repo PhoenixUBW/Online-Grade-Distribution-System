@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Teacher - Updating Grade</title>
+{% endblock %}
+
+{% block body %}
+<div class="w3-container">
+    <h1>Updating Student Grade</h1>
+    <h2>Student Name: {{ student.get_name() }}</h2>
+    <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+
+    <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{ student.student.get_subjects()[subject_index] }}" method="POST">
+        <table class="w3-table-all w3-centered">
+            <tr class="w3-khaki">
+                <th>Subject</th>
+            </tr>
+            <tr>
+                <td>{{ student.student.get_subjects()[subject_index] }}</td>
+            </tr>
+        </table>
+        <input class="w3-input w3-border w3-hover-grey" type="text" name="grade" placeholder="New Grade" id="grade">
+        <input class="w3-input w3-border w3-hover-grey" type="password" name="passphrase" placeholder="Passphrase" id="passphrase" />
+        <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Update grade">
+    </form>
+    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}">Back</a></p>
+</div>
+
+{% endblock %}

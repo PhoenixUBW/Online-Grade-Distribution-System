@@ -300,6 +300,17 @@ def teacher_homepage(teacher_ID):
 
     return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error, logged_in=logged_in()) 
 
+
+@app.route("/teacher/<teacher_ID>/update_subjects/<student_ID")
+def teacher_update_subjects(teacher_ID,student_ID):
+    error = None
+    if user_required(teacher_ID) == True:
+        teacher = User(teacher_ID)
+        student = User(student_ID)
+        if teacher.get_class)code() == student.get_class_code():
+            if request.method == "POST":
+                
+
 @app.route("/teacher/<teacher_ID>/update_grade/<student_ID>/<subject_index>", methods=["GET","POST"])
 def teacher_update_grade(teacher_ID,student_ID,subject_index):
     error = None
@@ -310,7 +321,7 @@ def teacher_update_grade(teacher_ID,student_ID,subject_index):
             if request.method == "POST":
                 if valid_grade(request.form["grade"])[0] == True:
                     if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
-                        student.teacher.update_grade(request.form["grade"],student.student.get_subjects()[int(subject_index)]) #not updating
+                        student.teacher.update_grade(request.form["grade"],student.student.get_subjects()[int(subject_index)])
                         flash("Grade successfully updated, refresh to see changes!")
                     else:
                         error = "Incorrect password "
@@ -321,6 +332,11 @@ def teacher_update_grade(teacher_ID,student_ID,subject_index):
     else:
         return redirect(url_for("login"))
     return render_template("teacher_update_grade.html", student=student, teacher=teacher, error=error, logged_in=logged_in(), subject_index=int(subject_index))
+
+
+
+
+
 
 @app.route("/admin")
 def admin_homepage():
@@ -438,7 +454,7 @@ def create_user():
                     if request.form["account_type"] == "Student":
                         with sqlite3.connect(config.get_GRADES_DB()) as con:
                             c = con.cursor()
-                            c.execute("INSERT INTO grades VALUES(?,'NONE','NONE')",(request.form["ID"],))
+                            c.execute("INSERT INTO grades VALUES(?,'NONE','NONE','NONE')",(request.form["ID"],))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "
