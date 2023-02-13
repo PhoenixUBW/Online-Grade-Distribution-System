@@ -25,6 +25,7 @@ SYMBOLS = ["`","!",'"',"'","$","%","^","&","*","(",")","-","_","+","=","[","]","
 NUMBERS = ["0","1","2","3","4","5","6","7","8","9"]
 ALPHABET = [" ","a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
            "z","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+AVAILABLE_SUBJECTS = ["maths","science","english","art","IT"]
 
 if os.path.exists(config.get_USER_DB()) == False:
     create_user_db(crypter)
@@ -165,14 +166,21 @@ class Student():
 class Teacher():
     def __init__(self,target):
         self.__target = target
+
     def update_grade(self,newgrade,subject): 
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
             c.execute("UPDATE grades SET grade=?, date_updated=? WHERE ID=? AND subject=?",(crypter.encrypt(bytes(newgrade, "utf-8")), crypter.encrypt(bytes(str(date.today()), "utf-8")), self.__target, subject))
+    
+    def update_subjects(self,subject):
+        with sqlite3.connect(config.get_GRADES_DB()) as con:
+            c = con.cursor()
+            c.execute("INSERT INTO grades VALUES(?,?,?,?)",(self.__target,subject,crypter.encrypt(bytes("NONE", "utf-8")),crypter.encrypt(bytes("NONE", "utf-8"))))
 
 class Admin():
     def __init__(self,target):
         self.__target = target
+
     def update_name(self,newname):
         with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
@@ -208,8 +216,9 @@ class User():
         if "ID" in session:
             if self.__account_type == "Student":
                 self.student = Student(ID)
-            if session["account_type"] == "Teacher":
-                self.teacher = Teacher(ID)
+            if "account_type" in session:
+                if session["account_type"] == "Teacher":
+                    self.teacher = Teacher(ID)
             if session["ID"] == config.get_ADMIN_USERNAME():
                 self.admin = Admin(ID)
 
@@ -301,14 +310,22 @@ def teacher_homepage(teacher_ID):
     return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error, logged_in=logged_in()) 
 
 
-@app.route("/teacher/<teacher_ID>/update_subjects/<student_ID")
+@app.route("/teacher/<teacher_ID>/update_subjects/<student_ID>", methods=['GET', 'POST'])
 def teacher_update_subjects(teacher_ID,student_ID):
     error = None
     if user_required(teacher_ID) == True:
         teacher = User(teacher_ID)
         student = User(student_ID)
-        if teacher.get_class)code() == student.get_class_code():
+        if teacher.get_class_code() == student.get_class_code():
             if request.method == "POST":
+                for subject in AVAILABLE_SUBJECTS:
+                    if subject not in student.student.get_subjects():
+                        student.teacher.update_subjects(request.form[subject])
+                        flash("Subject successfully added, resfresh to see changes")
+                    else:
+                        error = "Student already has this subject"
+    return render_template("teacher_update_subjects.html", student=student, teacher=teacher, error=error, logged_in=logged_in())
+
                 
 
 @app.route("/teacher/<teacher_ID>/update_grade/<student_ID>/<subject_index>", methods=["GET","POST"])
@@ -322,7 +339,7 @@ def teacher_update_grade(teacher_ID,student_ID,subject_index):
                 if valid_grade(request.form["grade"])[0] == True:
                     if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
                         student.teacher.update_grade(request.form["grade"],student.student.get_subjects()[int(subject_index)])
-                        flash("Grade successfully updated, refresh to see changes!")
+                        flash("Grade successfully updated, refresh to see changes")
                     else:
                         error = "Incorrect password "
                 else:
@@ -384,7 +401,7 @@ def update_passphrase(user_ID):
                 if request.form["attribute"] == request.form["confirm_attribute"]:
                     if request.form["admin_passphrase"] == config.get_ADMIN_PASSPHRASE():
                         user.admin.update_passphrase(request.form["attribute"])
-                        flash("Passphrase succesfully updated, refresh to see changes!")
+                        flash("Passphrase succesfully updated")
                     else:
                         error = "Incorrect passphrase "
                 else:
@@ -454,7 +471,7 @@ def create_user():
                     if request.form["account_type"] == "Student":
                         with sqlite3.connect(config.get_GRADES_DB()) as con:
                             c = con.cursor()
-                            c.execute("INSERT INTO grades VALUES(?,'NONE','NONE','NONE')",(request.form["ID"],))
+                            c.execute("INSERT INTO grades VALUES(?,'NONE',?,?)",(request.form["ID"],crypter.encrypt(bytes("NONE", "utf-8")),crypter.encrypt(bytes("NONE", "utf-8"))))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "
@@ -498,10 +515,6 @@ def current_user(previous_url):
 @app.route("/input_requirements")
 def input_requirements():
     return render_template("input_requirements.html", grades=VALID_GRADES, letters=ALPHABET, numbers=NUMBERS, symbols=SYMBOLS, logged_in=logged_in())
-
-@app.route("/test")
-def test():
-    return render_template("test.html",list=[1,2,3,4,5])
 
 if __name__ == "__main__":
     app.run(debug=config.get_DEBUG())

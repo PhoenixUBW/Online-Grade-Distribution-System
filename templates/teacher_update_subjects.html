@@ -10,16 +10,50 @@
     <h2>Student Name: {{ student.get_name() }}</h2>
     <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
 
-    <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{ student.student.get_subjects()[subject_index] }}" method="POST">
+    <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/update_subject/{{ student.get_ID() }}" method="POST">
         <table class="w3-table-all w3-centered">
             <tr class="w3-khaki">
-                <th>Subject</th>
+                <th>Subjects</th>
             </tr>
             <tr>
                 <td>{{ student.student.get_subjects()[subject_index] }}</td>
             </tr>
         </table>
-        <input class="w3-input w3-border w3-hover-grey" type="text" name="grade" placeholder="New Grade" id="grade">
+        {% if "maths" in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="maths" value="maths" checked/>
+            <label>Maths</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="maths" value="maths"/>
+            <label>Maths</label>
+        {% endif %}
+        {% if "english" in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="english" value="english" checked/>
+            <label>English</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="english" value="english"/>
+            <label>English</label>
+        {% endif %}
+        {% if "science" in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="science" value="science" checked/>
+            <label>Science</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="science" value="science"/>
+            <label>Science</label>
+        {% endif %}
+        {% if "art" in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="art" value="art" checked/>
+            <label>Art</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="art" value="art"/>
+            <label>Art</label>
+        {% endif %}
+        {% if "IT" in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="IT" value="IT" checked/>
+            <label>IT</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="IT" value="IT" />
+            <label>IT</label>
+        {% endif %}
         <input class="w3-input w3-border w3-hover-grey" type="password" name="passphrase" placeholder="Passphrase" id="passphrase" />
         <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Update grade">
     </form>
