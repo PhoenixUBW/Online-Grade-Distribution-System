@@ -12,24 +12,13 @@
 	<table class="w3-table-all w3-centered w3-card w3-animate-left">
 		<tr class="w3-khaki">
 			<th>Students</th>
-			<th>Subjects</th>
-			<th>Grade</th>
-			<th>Date Updated</th>
-			<th>Update Grade</th>
 		</tr>
 		{% for student in students %}
-			{% for index in student.student.get_num_subjects() %}
-				<tr>
-					<td>{{ student.get_name() }}
-					<td>{{ student.student.get_subjects()[index] }}</td>
-					<td>{{ student.student.get_grades()[index] }}</td>
-					<td>{{ student.student.get_dates()[index] }}</td>
-					<td><a class="w3-button w3-green w3-round-xlarge w3-hover-khaki" href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{ index }}">Update Grade</a></td>
-				</tr>
-			{% endfor %}
+			<tr>
+				<td><a href="/teacher/{{ teacher.get_ID() }}/view_student/{{ student.get_ID() }}" class="w3-button w3-round-xlarge w3-hover-khaki">{{ student.get_name() }}</a></td>
+			</tr>
 		{% endfor %}
 	</table>
-	<p><a href="/teacher/<teacher_ID>/update_subjects/<student_ID>" class="w3-button w3-green w3-round-xlarge w3-hover-khaki">Add </a></p>
 </div>
 
 {% endblock %}

@@ -9,8 +9,16 @@ from config import DevConfig, ProductionConfig
 
 #wtforms, sqlalchemy, django, postgreSQL, bcrypt
 
-#TO-DO - database initialisation uses config rather than hardcoded key, uses stacks to make forwards and back buttons, securely kept keys
-#teacher's comments?, attendance, behaviour, predicted grade, puts a delay between login/password enter inputs after getting it wrong x times
+#TO-DO - uses stacks to make forwards and back buttons, securely kept keys, teacher's comments?, attendance, behaviour, predicted grade, puts a delay between login/password enter inputs after getting it wrong x times
+
+#create user should use radio buttons for selecting account type not drop down
+#make user creation etc robust
+#thorough testing
+#after a error the create user stuff goes bold?
+#add subjects instead of update subjects
+#cahnge grades.db to student_info.db
+#remove subjects
+#fix css and looks for updated teacher pages
 
 app = Flask(__name__)
 
@@ -175,6 +183,7 @@ class Teacher():
     def update_subjects(self,subject):
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
+            c.execute("DELETE FROM grades WHERE subject='NONE'")
             c.execute("INSERT INTO grades VALUES(?,?,?,?)",(self.__target,subject,crypter.encrypt(bytes("NONE", "utf-8")),crypter.encrypt(bytes("NONE", "utf-8"))))
 
 class Admin():
@@ -200,6 +209,7 @@ class Admin():
         with sqlite3.connect(config.get_USER_DB()) as con:
             c = con.cursor()
             c.execute("DELETE FROM users WHERE ID=?",(self.__target,))
+            c.execute("DELETE FROM grades WHERE ID=?",(self.__target,))#no such table error
 
 class User():
     def __init__(self,ID):
@@ -307,8 +317,17 @@ def teacher_homepage(teacher_ID):
     else:
         return redirect(url_for("login"))
 
-    return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error, logged_in=logged_in()) 
+    return render_template("teacher_homepage.html",students=students, teacher=teacher, error=error, logged_in=logged_in())
 
+@app.route("/teacher/<teacher_ID>/view_student/<student_ID>")
+def teacher_view_student(teacher_ID,student_ID):
+    error = None
+    if user_required(teacher_ID) == True:
+        teacher = User(teacher_ID)
+        student = User(student_ID)
+        if teacher.get_class_code() != student.get_class_code():
+            error = "This student is not in your class"
+    return render_template("teacher_view_student.html", student=student, teacher=teacher, error=error, logged_in=logged_in())
 
 @app.route("/teacher/<teacher_ID>/update_subjects/<student_ID>", methods=['GET', 'POST'])
 def teacher_update_subjects(teacher_ID,student_ID):
@@ -318,12 +337,19 @@ def teacher_update_subjects(teacher_ID,student_ID):
         student = User(student_ID)
         if teacher.get_class_code() == student.get_class_code():
             if request.method == "POST":
-                for subject in AVAILABLE_SUBJECTS:
-                    if subject not in student.student.get_subjects():
-                        student.teacher.update_subjects(request.form[subject])
-                        flash("Subject successfully added, resfresh to see changes")
-                    else:
-                        error = "Student already has this subject"
+                if check_password_hash(teacher.get_hashed_passphrase(), request.form["passphrase"]) == True:
+                    for subject in AVAILABLE_SUBJECTS:
+                        if subject not in student.student.get_subjects():
+                            student.teacher.update_subjects(request.form[subject]) #key error, maths and english seem fine, science is key error
+                            flash("Subject successfully added, resfresh to see changes")
+                        else:
+                            error = "Student already has this subject"
+                else:
+                    error = "Incorrect password"
+        else:
+            error = "This student is not in your class"
+    else:
+        return redirect(url_for("login"))
     return render_template("teacher_update_subjects.html", student=student, teacher=teacher, error=error, logged_in=logged_in())
 
                 
@@ -452,9 +478,13 @@ def create_user():
             if valid_passphrase(request.form["passphrase"])[0] == False:
                 valid_user = False
                 error = valid_passphrase(request.form["passphrase"])[1]
-            if valid_account_type(request.form["account_type"])[0] == False:
+            if "account_type" in request.form:
+                if valid_account_type(request.form["account_type"])[0] == False:
+                    valid_user = False
+                    error = valid_account_type(request.form["account_type"])[1]
+            else:
                 valid_user = False
-                error = valid_account_type(request.form["account_type"])[1]
+                error = "Select an account type"
             if valid_class_code(request.form["class_code"])[0] == False:
                 valid_user = False
                 error = valid_class_code(request.form["class_code"])[1]
@@ -471,7 +501,7 @@ def create_user():
                     if request.form["account_type"] == "Student":
                         with sqlite3.connect(config.get_GRADES_DB()) as con:
                             c = con.cursor()
-                            c.execute("INSERT INTO grades VALUES(?,'NONE',?,?)",(request.form["ID"],crypter.encrypt(bytes("NONE", "utf-8")),crypter.encrypt(bytes("NONE", "utf-8"))))
+                            c.execute("INSERT INTO grades VALUES(?,NONE,?,?)",(request.form["ID"],crypter.encrypt(bytes("NONE", "utf-8")),crypter.encrypt(bytes("NONE", "utf-8"))))
                     flash("User successfully added")
                 else:
                     error = "Incorrect passphrase "
