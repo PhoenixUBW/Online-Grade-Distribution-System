@@ -18,7 +18,7 @@
 		{% for index in student.student.get_num_subjects() %}
 			<tr>
 				<td>{{ student.student.get_subjects()[index] }}</td>
-                <td>{{ student.student.get_grades()[index] }}</td>
+                <td><a class="w3-button w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{index}}">{{ student.student.get_grades()[index] }}</a></td>
                 <td>{{ student.student.get_dates()[index] }}</td>
 			</tr>
 		{% endfor %}
