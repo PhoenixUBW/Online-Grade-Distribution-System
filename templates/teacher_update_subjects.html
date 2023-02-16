@@ -20,38 +20,38 @@
             </tr>
         </table>
         {% if "maths" in student.student.get_subjects() %}
-            <input class="w3-radio" type="radio" name="maths" value="maths" checked/>
+            <input class="w3-radio" type="radio" name="maths" value="True" checked/>
             <label>Maths</label>
         {% else %}
-            <input class="w3-radio" type="radio" name="maths" value="maths"/>
+            <input class="w3-radio" type="radio" name="maths" value="True"/>
             <label>Maths</label>
         {% endif %}
         {% if "english" in student.student.get_subjects() %}
-            <input class="w3-radio" type="radio" name="english" value="english" checked/>
+            <input class="w3-radio" type="radio" name="english" value="True" checked/>
             <label>English</label>
         {% else %}
-            <input class="w3-radio" type="radio" name="english" value="english"/>
+            <input class="w3-radio" type="radio" name="english" value="True"/>
             <label>English</label>
         {% endif %}
         {% if "science" in student.student.get_subjects() %}
-            <input class="w3-radio" type="radio" name="science" value="science" checked/>
+            <input class="w3-radio" type="radio" name="science" value="True" checked/>
             <label>Science</label>
         {% else %}
-            <input class="w3-radio" type="radio" name="science" value="science"/>
+            <input class="w3-radio" type="radio" name="science" value="True"/>
             <label>Science</label>
         {% endif %}
         {% if "art" in student.student.get_subjects() %}
-            <input class="w3-radio" type="radio" name="art" value="art" checked/>
+            <input class="w3-radio" type="radio" name="art" value="True" checked/>
             <label>Art</label>
         {% else %}
-            <input class="w3-radio" type="radio" name="art" value="art"/>
+            <input class="w3-radio" type="radio" name="art" value="True"/>
             <label>Art</label>
         {% endif %}
         {% if "IT" in student.student.get_subjects() %}
-            <input class="w3-radio" type="radio" name="IT" value="IT" checked/>
+            <input class="w3-radio" type="radio" name="IT" value="True" checked/>
             <label>IT</label>
         {% else %}
-            <input class="w3-radio" type="radio" name="IT" value="IT" />
+            <input class="w3-radio" type="radio" name="IT" value="True" />
             <label>IT</label>
         {% endif %}
         <input class="w3-input w3-border w3-hover-grey" type="password" name="passphrase" placeholder="Passphrase" id="passphrase" />
