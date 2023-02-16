@@ -23,7 +23,8 @@
 			</tr>
 		{% endfor %}
 	</table>
-    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/update_subjects/{{ student.get_ID() }}">Add Subjects</a></p>
+    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/add_subjects/{{ student.get_ID() }}">Add Subjects</a>
+		<a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/remove_subjects/{{ student.get_ID() }}">Remove Subjects</a></p>
     <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}">Back</a></p>
 </div>
 

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Teacher - Updating Grade</title>
+{% endblock %}
+
+{% block body %}
+<div class="w3-container">
+    <h1>Updating Student Grade</h1>
+    <h2>Student Name: {{ student.get_name() }}</h2>
+    <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
+
+    <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/remove_subject/{{ student.get_ID() }}" method="POST">
+        <table class="w3-table-all w3-centered">
+            <tr class="w3-khaki">
+                <th>Subjects</th>
+            </tr>
+            <tr>
+                <td>{{ student.student.get_subjects()[subject_index] }}</td>
+            </tr>
+        </table>
+        {% if "maths" not in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="maths" value="True" checked/>
+            <label>Maths</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="maths" value="True"/>
+            <label>Maths</label>
+        {% endif %}
+        {% if "english" not in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="english" value="True" checked/>
+            <label>English</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="english" value="True"/>
+            <label>English</label>
+        {% endif %}
+        {% if "science" not in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="science" value="True" checked/>
+            <label>Science</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="science" value="True"/>
+            <label>Science</label>
+        {% endif %}
+        {% if "art" not in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="art" value="True" checked/>
+            <label>Art</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="art" value="True"/>
+            <label>Art</label>
+        {% endif %}
+        {% if "IT" not in student.student.get_subjects() %}
+            <input class="w3-radio" type="radio" name="IT" value="True" checked/>
+            <label>IT</label>
+        {% else %}
+            <input class="w3-radio" type="radio" name="IT" value="True" />
+            <label>IT</label>
+        {% endif %}
+        <input class="w3-input w3-border w3-hover-grey" type="password" name="passphrase" placeholder="Passphrase" id="passphrase" />
+        <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Update grade">
+    </form>
+    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/view_student/{{ student.get_ID() }}">Back</a></p>
+</div>
+
+{% endblock %}
