@@ -22,25 +22,25 @@ from config import DevConfig, ProductionConfig
 
 app = Flask(__name__)
 
-config = DevConfig()
+config = DevConfig() #defining which config settings you want to use, Dev/production, dev to use whilst programming, production to be used whilst running the system for use
 
-app.secret_key = config.get_SECRET_KEY()
+app.secret_key = config.get_SECRET_KEY() #getting the session key from config
 
-crypter = Fernet(config.get_EN_KEY())
+crypter = Fernet(config.get_EN_KEY()) #setting up the crypter object with the encryption key from our config
 
-VALID_GRADES = ["","A*","A","B","C","D","E","F"]
+VALID_GRADES = ["","A*","A","B","C","D","E","F"] #defining list of valid inputs for validation
 SYMBOLS = ["`","!",'"',"'","$","%","^","&","*","(",")","-","_","+","=","[","]","{","}","|",";",":","@","~","#",",","<",">",".","?","/"]
 NUMBERS = ["0","1","2","3","4","5","6","7","8","9"]
 ALPHABET = [" ","a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
            "z","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 AVAILABLE_SUBJECTS = ["maths","english","science","art","IT"]
 
-if os.path.exists(config.get_USER_DB()) == False:
+if os.path.exists(config.get_USER_DB()) == False: #if the databases have not yet been created they will be created
     create_user_db(crypter)
 if os.path.exists(config.get_GRADES_DB()) == False:
     create_grades_db(crypter)
 
-def valid_ID(data):
+def valid_ID(data): #validation functions to validate whether the input meets our criteria
     error = None
     if data == "":
         error = "No ID inputted"
@@ -116,6 +116,7 @@ def valid_grade(data):
     return True, error
 
 def list_ID():
+    """Creates a list of all users' IDs in the database"""
     with sqlite3.connect(config.get_USER_DB()) as con: 
         c = con.cursor()
         c.execute("SELECT ID FROM users")
@@ -126,9 +127,8 @@ def list_ID():
     return IDs
 
 def user_required(ID):
+    """Checks whether the user is firstly logged in then whether the user ID matches the required ID passed in"""
     if "ID" in session:
-        var1 = session["ID"]
-        var2 = ID
         if session["ID"] == ID:
             return True
         else:
@@ -139,6 +139,10 @@ def user_required(ID):
         return False
 
 class Student():
+    """Student class to be inherited by User class
+    
+    When a student object is created a list of their subjects, grades, and dates they were updated are created, and a list containing a consequetive sequence of 0 to number of subjects as private attributes which can be retrieved with the get methods
+    The list of numbers 0 to number of subjects is used for iteration when displaying the subjecst"""
     def __init__(self,ID):
         with sqlite3.connect(config.get_GRADES_DB()) as con:
             c = con.cursor()
@@ -172,6 +176,10 @@ class Student():
         return self.__num_subjects
 
 class Teacher():
+    """Teacher class to be inherited by User class
+    
+    When a teacher object is created the ID of the student that the teacher wishes to perform an action on is passed in as 'target' which is assigned as an private attribute
+    There are 3 methods which allow the teacher to update the grade or add/remove subjects from the target ID in the database"""
     def __init__(self,target):
         self.__target = target
 
@@ -192,6 +200,10 @@ class Teacher():
             c.execute("DELETE FROM grades WHERE ID=? AND subject=?",(self.__target,subject))
 
 class Admin():
+    """Admin class to be inherited by User class
+
+    When an admin object is created the parameter target is passed in and set to a private attribute which is used to determine the ID which the methods should act upon
+    Admin has 4 methods which allow to edit user attributes and delete users"""
     def __init__(self,target):
         self.__target = target
 
@@ -211,7 +223,7 @@ class Admin():
             c.execute("UPDATE users SET class_code=? WHERE ID=?",(newclass_code, self.__target))
 
     def delete(self):
-        with sqlite3.connect(config.get_USER_DB()) as con:
+        with sqlite3.connect(config.get_USER_DB()) as con: #Deletes data for target ID in both tables
             c = con.cursor()
             c.execute("DELETE FROM users WHERE ID=?",(self.__target,))
         with sqlite3.connect(config.get_GRADES_DB()) as con:
