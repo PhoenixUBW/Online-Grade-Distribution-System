@@ -2,20 +2,20 @@
 <html lang="en">
 <head>
 	<meta name="viewport" content="width=device-width, inital-scale=1" />
-	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> <!-- Used w3schools CSS stylesheet -->
 	{% block head %}{% endblock %}
 </head>
 	<body>
-		<div class="w3-bar w3-green w3-display-container">
+		<div class="w3-bar w3-green w3-display-container"> <!-- Creating the navigation bar -->
 			<a href="{{ url_for("homepage") }}" class="w3-bar-item w3-button w3-hover-khaki">Homepage</a>
 			<a href="{{ url_for("logout") }}" class="w3-bar-item w3-button w3-hover-khaki w3-right">Logout</a>
 			<a href="{{ url_for("login") }}" class="w3-bar-item w3-button w3-hover-khaki w3-right">{{ logged_in }}</a>
 		</div>
 		{% if error %}
-		<p class="w3-panel w3-pale-red"><strong>Error: {{ error }}</p>
+		<p class="w3-panel w3-pale-red"><strong>Error: {{ error }}</p> <!-- Dispalying error messages -->
 		{% endif %}
 		{% block body %}{% endblock %}
-		{% for message in get_flashed_messages() %}
+		{% for message in get_flashed_messages() %} <!-- Displaying flashes messages -->
 			<p class="w3-panel">{{ message }} <span onclick="this.parentElement.style.display='none'" class="w3-button w3-large w3-hover-pale-red">&times;</span></p></li>
 		{% endfor %}
 	</body>

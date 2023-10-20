@@ -15,7 +15,7 @@
             <th>Grade</th>
             <th>Date Updated</th>
 		</tr>
-		{% for index in student.student.get_num_subjects() %}
+		{% for index in student.student.get_num_subjects() %} <!-- Prints the student's info and the grade as a button -->
 			<tr>
 				<td>{{ student.student.get_subjects()[index] }}</td>
                 <td><a class="w3-button w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{index}}">{{ student.student.get_grades()[index] }}</a></td>
@@ -23,9 +23,9 @@
 			</tr>
 		{% endfor %}
 	</table>
-    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/add_subjects/{{ student.get_ID() }}">Add Subjects</a>
+    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/add_subjects/{{ student.get_ID() }}">Add Subjects</a> <!-- Buttons to access other functinos -->
 		<a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}/remove_subjects/{{ student.get_ID() }}">Remove Subjects</a></p>
-    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}">Back</a></p>
+    <p><a class="w3-button w3-green w3-hover-khaki w3-round-xlarge" href="/teacher/{{ teacher.get_ID() }}">Back</a></p> <!-- Back button -->
 </div>
 
 {% endblock %}

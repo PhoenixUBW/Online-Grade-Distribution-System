@@ -1,14 +1,15 @@
+# Default config settings
 class DefualtConfig():
     def __init__(self):
-        self.set_DEBUG(False)
-        self.set_SECRET_KEY("secret") #make safe
-        self.set_USER_DB("users.db")
-        self.set_GRADES_DB("grades.db")
-        self.set_ADMIN_USERNAME("admin") #make safe
-        self.set_ADMIN_PASSPHRASE("admin") #make safe
-        self.set_EN_KEY(b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=') #make safe
+        self.set_DEBUG(False) # Debug off by defauly
+        self.set_SECRET_KEY("secret") # Session key
+        self.set_USER_DB("users.db") # User database filename
+        self.set_GRADES_DB("grades.db") # Student grade database filename
+        self.set_ADMIN_USERNAME("admin") # Admin username
+        self.set_ADMIN_PASSPHRASE("admin") # Admin passphrase
+        self.set_EN_KEY(b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54=') # Encryption key
 
-    def set_DEBUG(self,value):
+    def set_DEBUG(self,value): # Uses set methods to set the private values
         self.__DEBUG = value
 
     def set_SECRET_KEY(self,value):
@@ -29,7 +30,7 @@ class DefualtConfig():
     def set_EN_KEY(self,value):
         self.__EN_KEY = value
     
-    def get_DEBUG(self):
+    def get_DEBUG(self): # Uses get methods to retrieve the private attributes
         return self.__DEBUG
 
     def get_SECRET_KEY(self):
@@ -50,12 +51,14 @@ class DefualtConfig():
     def get_EN_KEY(self):
         return self.__EN_KEY
 
+# Developer config settings
 class DevConfig(DefualtConfig):
     def __init__(self):
-        super().__init__()
-        self.set_DEBUG(True)
+        super().__init__() # Inherets all the default config settings
+        self.set_DEBUG(True) # Overides debug to be true
 
+# Production config settigngs
 class ProductionConfig(DefualtConfig):
     def __init__(self):
-        super().__init__()
-        self.set_DEBUG(False)
+        super().__init__() # Inherets all the default config settings
+        self.set_DEBUG(False) # Overides debug to be false

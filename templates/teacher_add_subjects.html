@@ -17,7 +17,7 @@
                 <td>{{ student.student.get_subjects()[subject_index] }}</td>
             </tr>
         </table>
-        {% if "maths" in student.student.get_subjects() %}
+        {% if "maths" in student.student.get_subjects() %} <!-- If the student has the subject the radio button will be ticked already -->
             <input class="w3-radio" type="radio" name="maths" value="True" checked/>
             <label>Maths</label>
         {% else %}

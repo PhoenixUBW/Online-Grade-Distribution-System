@@ -7,7 +7,7 @@
 {% block body %}
 
 <div class="w3-container">
-    <h1>Updating: {{ attribute }}</h1>
+    <h1>Updating: {{ attribute }}</h1> <!-- Fairly dynamic template used to update several attributes hence the variables -->
     <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
     <form class="w3-centered w3-card w3-animate-left" actions="/admin/update_{{ attribute }}/{{ user.get_ID() }}" method="POST">
         <table class="w3-table-all w3-centered">

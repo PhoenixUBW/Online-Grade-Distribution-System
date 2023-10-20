@@ -17,7 +17,7 @@
                 <td>{{ student.student.get_subjects()[subject_index] }}</td>
             </tr>
         </table>
-        {% if "maths" not in student.student.get_subjects() %}
+        {% if "maths" not in student.student.get_subjects() %} <!-- Reverse from adding subjects -->
             <input class="w3-radio" type="radio" name="maths" value="True" checked/>
             <label>Maths</label>
         {% else %}

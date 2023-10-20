@@ -1,26 +1,20 @@
+# Importing sqlite3 to create the tables
 import sqlite3
-from werkzeug.security import generate_password_hash
-from cryptography.fernet import Fernet
 
-#commented out 3 example users - 1 teacher, 2 students (1 in the teachers class, 1 in a different class)
-
-key = b'b79KmdHl5ijdRg3AMkvqfLYx_gvh9rLxiwoUS5QgZ54='
-crypter = Fernet(key)
-
-def create_user_db(crypter):
+# Create user database table
+def create_user_db():
     with sqlite3.connect("users.db") as con:
         c = con.cursor()
         c.execute("CREATE TABLE users (ID INTEGER, name TEXT, hashed_passphrase TEXT, account_type TEXT, class_code TEXT)")
-        #c.execute("INSERT INTO users VALUES(1, ?, ?, 'Student', 'C1')",(crypter.encrypt(b"John"), generate_password_hash("Password_12345")))
-        #c.execute("INSERT INTO users VALUES(2, ?, ?, 'Teacher', 'C1')",(crypter.encrypt(b"Jake"), generate_password_hash("Password_12345")))
 
-def create_grades_db(crypter):
+# Create student grades database table
+def create_grades_db():
     with sqlite3.connect("grades.db") as con:
         c = con.cursor()
         c.execute("CREATE TABLE grades (ID INTEGER, subject TEXT, grade TEXT, date_updated TEXT)")
-        #c.execute("INSERT INTO grades VALUES(1, 'Maths', ?, ?)",(crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
-        #c.execute("INSERT INTO grades VALUES(1, 'Science', ?, ?)",(crypter.encrypt(b"NONE"),crypter.encrypt(b"NONE")))
 
+# If this file is ran independantly it will create the tables (e.g. I run the file myself)
+# However when this file is imported into another the functions will not run until called in that file
 if __name__ == "__main__":
-    create_user_db(crypter)
-    create_grades_db(crypter)
+    create_user_db()
+    create_grades_db()

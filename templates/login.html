@@ -7,10 +7,10 @@
 {% block body %}
 <div class="w3-container">
     <h1>Please Login</h1>
-    <form class="w3-card-4 w3-animate-left" actions="{{ url_for("login") }}" method="post">
+    <form class="w3-card-4 w3-animate-left" actions="{{ url_for("login") }}" method="post"> <!-- Login form which takes in the inputs -->
         <input class="w3-input w3-border w3-hover-grey" type="text" placeholder="ID" name="ID" id="ID">
         <input class="w3-input w3-border w3-hover-grey" type="password" placeholder="Passphrase" name="passphrase" id="passphrase">
-        <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Login" />
+        <input class="w3-bar w3-grey w3-hover-green" type="submit" value="Login" /> <!-- Submit button -->
     </form>
     <br />
 </div>

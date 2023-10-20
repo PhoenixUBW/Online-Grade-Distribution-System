@@ -6,11 +6,11 @@
 
 {% block body %}
 <div class="w3-container">
-    <h1>Updating Student Grade</h1>
+    <h1>Updating Student Grade</h1> <!-- Input requirements button -->
     <p class="w3-button w3-animate-left w3-green w3-hover-khaki w3-round"><a href="{{ url_for("input_requirements") }}">Input Requirements</a></p>
 
     <form class="w3-centered w3-card-4 w3-animate-left" actions="/teacher/{{ teacher.get_ID() }}/update_grade/{{ student.get_ID() }}/{{ student.student.get_subjects()[subject_index] }}" method="POST">
-        <table class="w3-table-all w3-centered">
+        <table class="w3-table-all w3-centered"> <!-- Table containing student info inside the form -->
             <tr class="w3-khaki">
                 <th>Student</th>
                 <th>Subject</th>
